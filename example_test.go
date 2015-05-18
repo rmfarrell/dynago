@@ -8,7 +8,7 @@ import (
 var endpoint, accessKey, secretKey, table string
 var client dynago.Client
 
-func Example_RunQuery() {
+func Example_query() {
 	client := dynago.NewClient(endpoint, accessKey, secretKey)
 
 	query := client.Query(table).
@@ -25,7 +25,7 @@ func Example_RunQuery() {
 	}
 }
 
-func Example_AtomicUpdateItem() {
+func Example_atomicUpdateItem() {
 	key := dynago.HashKey("id", 12345)
 	result, err := client.UpdateItem("products", key).
 		ReturnValues(dynago.ReturnUpdatedNew).
