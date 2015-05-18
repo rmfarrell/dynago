@@ -11,6 +11,16 @@ import (
 	"time"
 )
 
+/*
+The functions in this file implement the AWS v4 request signing algorithm.
+
+This is required for all aws requests to ensure:
+
+	1. request bodies and headers are not tampered with in flight.
+	2. It also prevents replay attacks
+	3. It also handles authentication without sending or revealing the shared secret
+*/
+
 const algorithm = "AWS4-HMAC-SHA256"
 
 type AWSInfo struct {

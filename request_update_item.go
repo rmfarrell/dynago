@@ -34,26 +34,31 @@ type UpdateItem struct {
 	req    updateItemRequest
 }
 
+// Set a condition expression for conditional update.
 func (u *UpdateItem) ConditionExpression(expression string) *UpdateItem {
 	u.req.ConditionExpression = expression
 	return u
 }
 
+// Set an update expression to update specific fields and values.
 func (u *UpdateItem) UpdateExpression(expression string) *UpdateItem {
 	u.req.UpdateExpression = expression
 	return u
 }
 
+// Quick-set parameters for all the values here.
 func (u *UpdateItem) Param(key string, value interface{}) *UpdateItem {
 	paramHelper(&u.req.ExpressionAttributeValues, key, value)
 	return u
 }
 
+// If set, then we will get return values of either updated or old fields (see ReturnValues const)
 func (u *UpdateItem) ReturnValues(returnValues ReturnValues) *UpdateItem {
 	u.req.ReturnValues = returnValues
 	return u
 }
 
+// Execute this UpdateItem and return the result.
 func (u *UpdateItem) Execute() (res *UpdateItemResult, err error) {
 	if u.req.ReturnValues != ReturnNone && u.req.ReturnValues != "" {
 		res = &UpdateItemResult{}

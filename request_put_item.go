@@ -2,8 +2,7 @@ package dynago
 
 type putItemRequest struct {
 	TableName string
-
-	Item Document
+	Item      Document
 
 	ConditionExpression       string   `json:",omitempty"`
 	ExpressionAttributeValues Document `json:",omitempty"`
@@ -28,25 +27,28 @@ type PutItem struct {
 	req    putItemRequest
 }
 
+// Set a ConditionExpression to do a conditional PutItem.
 func (p *PutItem) ConditionExpression(expression string) *PutItem {
 	p.req.ConditionExpression = expression
 	return p
 }
 
+// Set parameter for ConditionExpression
 func (p *PutItem) Param(key string, value interface{}) *PutItem {
 	paramHelper(&p.req.ExpressionAttributeValues, key, value)
 	return p
 }
 
+// Set ReturnValues.
 func (p *PutItem) ReturnValues(returnValues ReturnValues) *PutItem {
 	p.req.ReturnValues = returnValues
 	return p
 }
 
 /*
-Actually execute this put.
+Actually Execute this putitem.
 
-PutItemResult may be empty if there is no need
+PutItemResult will be nil unless ReturnValues or ReturnConsumedCapacity is set.
 */
 func (p *PutItem) Execute() (res *PutItemResult, err error) {
 	res = &PutItemResult{}
