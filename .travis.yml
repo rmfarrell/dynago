@@ -1,0 +1,15 @@
+language: go
+
+go:
+    - 1.4
+#    - 1.5
+#    - tip
+
+env:
+    global:
+        - DYNAGO_TEST_ENDPOINT="http://localhost:8001/"
+
+before_install:
+    - "wget http://dynamodb-local.s3-website-us-west-2.amazonaws.com/dynamodb_local_latest.tar.gz"
+    - "tar -zxvf dynamodb_local_latest.tar.gz"
+    - "java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -sharedDb -port 8001 &"

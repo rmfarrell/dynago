@@ -5,13 +5,13 @@ import (
 	"github.com/crast/dynago"
 )
 
-var endpoint, accessKey, secretKey string
+var endpoint, accessKey, secretKey, table string
 var client dynago.Client
 
 func Example_RunQuery() {
 	client := dynago.NewClient(endpoint, accessKey, secretKey)
 
-	query := client.Table(table).Query().
+	query := client.Query(table).
 		FilterExpression("NumViews > :views").
 		Param(":views", 50).
 		Desc()

@@ -51,8 +51,8 @@ Actually Execute this putitem.
 PutItemResult will be nil unless ReturnValues or ReturnConsumedCapacity is set.
 */
 func (p *PutItem) Execute() (res *PutItemResult, err error) {
-	res = &PutItemResult{}
 	if p.req.ReturnValues != ReturnNone && p.req.ReturnValues != "" {
+		res = &PutItemResult{}
 		err = p.client.makeRequestUnmarshal("PutItem", &p.req, res)
 	} else {
 		_, err = p.client.makeRequest("PutItem", &p.req)

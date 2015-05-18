@@ -6,6 +6,8 @@ import (
 	"io"
 	"log"
 	"net/http"
+
+	"github.com/crast/dynago/schema"
 )
 
 const DynamoTargetPrefix = "DynamoDB_20120810." // This is the Dynamo API version we support
@@ -37,7 +39,7 @@ type Client struct {
 
 func (c *Client) makeRequest(target string, document interface{}) ([]byte, error) {
 	buf, err := json.Marshal(document)
-	log.Printf("Request Body: \n%s\n\n", buf)
+	// log.Printf("Request Body: \n%s\n\n", buf)
 	if err != nil {
 		return nil, err
 	}
@@ -128,6 +130,15 @@ Compose an UpdateItem on a dynamo table.
 */
 func (c *Client) UpdateItem(table string, key Document) *UpdateItem {
 	return newUpdateItem(c, table, key)
+}
+
+/*
+Create a table.
+*/
+func (c *Client) CreateTable(req *schema.CreateRequest) (*schema.CreateResponse, error) {
+	resp := &schema.CreateResponse{}
+	err := c.makeRequestUnmarshal("CreateTable", req, resp)
+	return resp, err
 }
 
 func responseBytes(response *http.Response) (buf []byte, err error) {
