@@ -28,21 +28,21 @@ type GetItem struct {
 }
 
 // Set the ProjectionExpression for this GetItem (which attributes to get)
-func (p *GetItem) ProjectionExpression(expression string) *GetItem {
+func (p GetItem) ProjectionExpression(expression string) *GetItem {
 	p.req.ProjectionExpression = expression
-	return p
+	return &p
 }
 
 // Shortcut to set an ExpressionAttributeValue for used in expression query
-func (p *GetItem) Param(key string, value interface{}) *GetItem {
+func (p GetItem) Param(key string, value interface{}) *GetItem {
 	paramHelper(&p.req.ExpressionAttributeValues, key, value)
-	return p
+	return &p
 }
 
 // Set up this get to be a strongly consistent read.
-func (p *GetItem) ConsistentRead() *GetItem {
+func (p GetItem) ConsistentRead() *GetItem {
 	p.req.ConsistentRead = true
-	return p
+	return &p
 }
 
 // Execute the get item.

@@ -36,40 +36,40 @@ type Query struct {
 }
 
 // If strong is true, do a strongly consistent read. (defaults to false)
-func (q *Query) ConsistentRead(strong bool) *Query {
+func (q Query) ConsistentRead(strong bool) *Query {
 	q.req.ConsistentRead = &strong
-	return q
+	return &q
 }
 
 // Set a post-filter expression for the results we scan.
-func (q *Query) FilterExpression(expression string) *Query {
+func (q Query) FilterExpression(expression string) *Query {
 	q.req.FilterExpression = expression
-	return q
+	return &q
 }
 
 // Set a condition expression on the key to narrow down what we scan
-func (q *Query) KeyConditionExpression(expression string) *Query {
+func (q Query) KeyConditionExpression(expression string) *Query {
 	q.req.KeyConditionExpression = expression
-	return q
+	return &q
 }
 
 // Set a Projection Expression for controlling which attributes are returned.
-func (q *Query) ProjectionExpression(expression string) *Query {
+func (q Query) ProjectionExpression(expression string) *Query {
 	q.req.ProjectionExpression = expression
-	return q
+	return &q
 }
 
 // Shortcut to set a single parameter for ExpressionAttributeValues.
-func (q *Query) Param(key string, value interface{}) *Query {
+func (q Query) Param(key string, value interface{}) *Query {
 	paramHelper(&q.req.ExpressionAttributeValues, key, value)
-	return q
+	return &q
 }
 
 // Return results descending.
-func (q *Query) Desc() *Query {
+func (q Query) Desc() *Query {
 	forward := false
 	q.req.ScanIndexForward = &forward
-	return q
+	return &q
 }
 
 // Execute this query and return results.
@@ -98,8 +98,17 @@ type QueryResult struct {
 
 // Helper for a variety of endpoint types to build a params dictionary.
 func paramHelper(doc *Document, key string, value interface{}) {
-	if *doc == nil {
-		*doc = Document{}
+	params := paramCopy(doc, 1)
+	params[key] = value
+}
+
+func paramCopy(doc *Document, extendBy int) Document {
+	params := make(Document, len(*doc)+extendBy)
+	if *doc != nil {
+		for k, v := range *doc {
+			params[k] = v
+		}
 	}
-	(*doc)[key] = value
+	*doc = params
+	return params
 }
