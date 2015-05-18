@@ -10,9 +10,16 @@ import (
 
 const DynamoTargetPrefix = "DynamoDB_20120810." // This is the Dynamo API version we support
 
-func NewClient(prefix string, region string, accessKey string, secretKey string) *Client {
+/*
+Create a new dynamo client.
+
+region is the AWS region, e.g. us-east-1.
+accessKey is your amazon access key ID.
+secretKey is your amazon secret key ID.
+*/
+func NewClient(region string, accessKey string, secretKey string) *Client {
 	return &Client{
-		endpoint: prefix,
+		endpoint: "https://dynamodb." + region + ".amazonaws.com/",
 		aws: AWSInfo{
 			Region:    region,
 			AccessKey: accessKey,
@@ -65,20 +72,24 @@ func (c *Client) makeRequestUnmarshal(method string, document interface{}, dest 
 }
 
 /*
-Return a Table object representing a table in dynamodb.
-*/
-func (c *Client) Table(tableName string) *Table {
-	return &Table{c, tableName}
-}
+Override the endpoint for this client.
 
-type Table struct {
-	client    *Client
-	tableName string
+Mostly this is for testing and the defaults should suffice in production.
+*/
+func (c *Client) SetEndpoint(endpoint string) {
+	c.endpoint = endpoint
 }
 
 /*
 Compose a GetItem on a dynamo table.
 
+key should be a Document containing enough attributes to describe the primary key.
+
+You can use the HashKey or HashRangeKey helpers to help build a key:
+
+	client.GetItem("foo", dynago.HashKey("Id", 45))
+
+	client.GetItem("foo", dynago.HashRangeKey("UserId", 45, "Date", "20140512"))
 */
 func (c *Client) GetItem(table string, key Document) *GetItem {
 	return newGetItem(c, table, key)
