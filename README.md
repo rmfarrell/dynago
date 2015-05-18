@@ -24,21 +24,22 @@ Example
 
 Run a query:
 
-	client := dynago.NewClient(endpoint, accessKey, secretKey)
+```go
+client := dynago.NewClient(endpoint, accessKey, secretKey)
 
-	query := client.Query(table).
-		FilterExpression("NumViews > :views").
-		Param(":views", 50).
-		Desc()
+query := client.Query(table).
+	FilterExpression("NumViews > :views").
+	Param(":views", 50).
+	Desc()
 
-	result, err := query.Execute()
-	if err != nil {
-		// do something
-	}
-	for _, row := range result.Items {
-		fmt.Printf("Name: %s, Views: %d", row["Name"], row["NumViews"])
-	}
-
+result, err := query.Execute()
+if err != nil {
+	// do something
+}
+for _, row := range result.Items {
+	fmt.Printf("Name: %s, Views: %d", row["Name"], row["NumViews"])
+}
+```
 
 Type Marshaling
 ---------------
@@ -46,16 +47,19 @@ Type Marshaling
 Dynago attempts to let you use go types instead of having to understand a whole lot about dynamo's internal type system.
 
 Example:
-	
-	doc := dynago.Document{
-		"name": "Bob",
-		"age": 45,
-		"height": 2.1,
-		"address": dynago.Document{
-			"city": "Boston",
-		}
-	}
-	client.PutItem("person", doc).Execute()
+
+```go
+doc := dynago.Document{
+	"name": "Bob",
+	"age": 45,
+	"height": 2.1,
+	"address": dynago.Document{
+		"city": "Boston",
+	},
+	"tags": dynago.StringSet{"male", "middle_aged"},
+}
+client.PutItem("person", doc).Execute()
+```
 
  * Strings use golang `string`
  * Numbers can be input as `int` or `float64` but always are returned as `dynago.Number` to not lose precision.

@@ -22,7 +22,7 @@ func setUp(t *testing.T) (*assert.Assertions, *Client) {
 			t.SkipNow()
 		}
 		state.client = NewClient("us-east-1", "AKIAEXAMPLE", "SECRETEXAMPLE")
-		state.client.SetEndpoint(endpoint)
+		state.client.executor.(*defaultExecutor).SetEndpoint(endpoint)
 		makeTables(t, state.client)
 	}
 	return assert.New(t), state.client

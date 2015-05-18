@@ -47,8 +47,12 @@ func (p *GetItem) ConsistentRead() *GetItem {
 
 // Execute the get item.
 func (p *GetItem) Execute() (result *GetItemResult, err error) {
+	return p.client.executor.GetItem(p)
+}
+
+func (e *defaultExecutor) GetItem(g *GetItem) (result *GetItemResult, err error) {
 	result = &GetItemResult{}
-	err = p.client.makeRequestUnmarshal("GetItem", &p.req, result)
+	err = e.makeRequestUnmarshal("GetItem", &g.req, result)
 	return
 }
 

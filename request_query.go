@@ -74,8 +74,12 @@ func (q *Query) Desc() *Query {
 
 // Execute this query and return results.
 func (q *Query) Execute() (result *QueryResult, err error) {
+	return q.client.executor.Query(q)
+}
+
+func (e *defaultExecutor) Query(q *Query) (result *QueryResult, err error) {
 	var response queryResponse
-	err = q.client.makeRequestUnmarshal("Query", &q.req, &response)
+	err = e.makeRequestUnmarshal("Query", &q.req, &response)
 	if err != nil {
 		return
 	}

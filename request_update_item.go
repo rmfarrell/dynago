@@ -60,11 +60,15 @@ func (u *UpdateItem) ReturnValues(returnValues ReturnValues) *UpdateItem {
 
 // Execute this UpdateItem and return the result.
 func (u *UpdateItem) Execute() (res *UpdateItemResult, err error) {
+	return u.client.executor.UpdateItem(u)
+}
+
+func (e *defaultExecutor) UpdateItem(u *UpdateItem) (res *UpdateItemResult, err error) {
 	if u.req.ReturnValues != ReturnNone && u.req.ReturnValues != "" {
 		res = &UpdateItemResult{}
-		err = u.client.makeRequestUnmarshal("UpdateItem", &u.req, res)
+		err = e.makeRequestUnmarshal("UpdateItem", &u.req, res)
 	} else {
-		_, err = u.client.makeRequest("UpdateItem", &u.req)
+		_, err = e.makeRequest("UpdateItem", &u.req)
 	}
 	return
 }

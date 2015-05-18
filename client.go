@@ -1,12 +1,6 @@
 package dynago
 
 import (
-	"bytes"
-	"encoding/json"
-	"io"
-	"log"
-	"net/http"
-
 	"github.com/crast/dynago/schema"
 )
 
@@ -21,65 +15,29 @@ secretKey is your amazon secret key ID.
 */
 func NewClient(region string, accessKey string, secretKey string) *Client {
 	return &Client{
-		endpoint: "https://dynamodb." + region + ".amazonaws.com/",
-		aws: AWSInfo{
-			Region:    region,
-			AccessKey: accessKey,
-			SecretKey: secretKey,
-			Service:   "dynamodb",
+		executor: &defaultExecutor{
+			endpoint: "https://dynamodb." + region + ".amazonaws.com/",
+			aws: AWSInfo{
+				Region:    region,
+				AccessKey: accessKey,
+				SecretKey: secretKey,
+				Service:   "dynamodb",
+			},
 		},
 	}
 }
 
-type Client struct {
-	caller   http.Client
-	endpoint string
-	aws      AWSInfo
-}
-
-func (c *Client) makeRequest(target string, document interface{}) ([]byte, error) {
-	buf, err := json.Marshal(document)
-	// log.Printf("Request Body: \n%s\n\n", buf)
-	if err != nil {
-		return nil, err
-	}
-	body := bytes.NewBuffer(buf)
-	req, err := http.NewRequest("POST", c.endpoint, body)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Add("x-amz-target", DynamoTargetPrefix+target)
-	req.Header.Add("content-type", "application/x-amz-json-1.0")
-	req.Header.Set("Host", req.URL.Host)
-	c.aws.signRequest(req, buf)
-	response, err := c.caller.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	if response.StatusCode != http.StatusOK {
-		resp := make([]byte, response.ContentLength)
-		response.Body.Read(resp)
-		log.Printf(" Another Status %d \n%#v\n\n%#v\n\n%s", response.StatusCode, req, response, resp)
-	}
-	return responseBytes(response)
-}
-
-func (c *Client) makeRequestUnmarshal(method string, document interface{}, dest interface{}) (err error) {
-	body, err := c.makeRequest(method, document)
-	if err != nil {
-		return
-	}
-	err = json.Unmarshal(body, dest)
-	return
-}
-
 /*
-Override the endpoint for this client.
+Create a new client with a custom executor.
 
-Mostly this is for testing and the defaults should suffice in production.
+This is mainly used for unit test and mock scenarios.
 */
-func (c *Client) SetEndpoint(endpoint string) {
-	c.endpoint = endpoint
+func NewClientExecutor(executor Executor) *Client {
+	return &Client{executor}
+}
+
+type Client struct {
+	executor Executor
 }
 
 /*
@@ -136,19 +94,5 @@ func (c *Client) UpdateItem(table string, key Document) *UpdateItem {
 Create a table.
 */
 func (c *Client) CreateTable(req *schema.CreateRequest) (*schema.CreateResponse, error) {
-	resp := &schema.CreateResponse{}
-	err := c.makeRequestUnmarshal("CreateTable", req, resp)
-	return resp, err
-}
-
-func responseBytes(response *http.Response) (buf []byte, err error) {
-	if response.ContentLength > 0 {
-		buf = make([]byte, response.ContentLength)
-		_, err = response.Body.Read(buf)
-		if err != nil && err != io.EOF {
-			return nil, err
-		}
-		err = response.Body.Close()
-	}
-	return
+	return c.executor.CreateTable(req)
 }
