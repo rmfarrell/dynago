@@ -17,7 +17,7 @@ func NewClient(region string, accessKey string, secretKey string) *Client {
 	return &Client{
 		executor: &defaultExecutor{
 			endpoint: "https://dynamodb." + region + ".amazonaws.com/",
-			aws: AWSInfo{
+			aws: awsInfo{
 				Region:    region,
 				AccessKey: accessKey,
 				SecretKey: secretKey,

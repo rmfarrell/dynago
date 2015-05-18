@@ -27,7 +27,7 @@ type Executor interface {
 type defaultExecutor struct {
 	endpoint string
 	caller   http.Client
-	aws      AWSInfo
+	aws      awsInfo
 }
 
 /*

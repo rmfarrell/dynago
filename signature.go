@@ -23,14 +23,14 @@ This is required for all aws requests to ensure:
 
 const algorithm = "AWS4-HMAC-SHA256"
 
-type AWSInfo struct {
+type awsInfo struct {
 	AccessKey string
 	SecretKey string
 	Region    string
 	Service   string
 }
 
-func (info *AWSInfo) signRequest(request *http.Request, bodyBytes []byte) {
+func (info *awsInfo) signRequest(request *http.Request, bodyBytes []byte) {
 	now := time.Now().UTC()
 	isoDateSmash := now.Format("20060102T150405Z")
 	request.Header.Add("x-amz-date", isoDateSmash)
@@ -81,7 +81,7 @@ func canonicalHeaders(buf *bytes.Buffer, headers http.Header) string {
 	return signedHeaders
 }
 
-func signingKey(now time.Time, info *AWSInfo) []byte {
+func signingKey(now time.Time, info *awsInfo) []byte {
 	kSecret := "AWS4" + info.SecretKey
 	kDate := hmacShort([]byte(kSecret), []byte(now.Format("20060102")))
 	kRegion := hmacShort(kDate, []byte(info.Region))
