@@ -52,13 +52,7 @@ func (c *Client) GetItem(table string, key Document) *GetItem {
 Compose a Query on a dynamo table.
 
 This returns a new Query struct which you can compose via chaining to build the query you want.
-
-Then finish the chain by calling Execute() to run the query:
-
-	result, err := table.Query().
-		FilterExpression("Foo > :val").
-		Param(":val", 45).
-		Execute()
+Then finish the chain by calling Execute() to run the query.
 
 */
 func (c *Client) Query(table string) *Query {
