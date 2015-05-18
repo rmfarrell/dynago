@@ -21,8 +21,7 @@ func setUp(t *testing.T) (*assert.Assertions, *Client) {
 		if endpoint == "" {
 			t.SkipNow()
 		}
-		state.client = NewClient("us-east-1", "AKIAEXAMPLE", "SECRETEXAMPLE")
-		state.client.executor.(*defaultExecutor).SetEndpoint(endpoint)
+		state.client = NewClientExecutor(NewAwsExecutor(endpoint, "us-east-1", "AKIAEXAMPLE", "SECRETEXAMPLE"))
 		makeTables(t, state.client)
 	}
 	return assert.New(t), state.client

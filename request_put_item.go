@@ -54,7 +54,7 @@ func (p *PutItem) Execute() (res *PutItemResult, err error) {
 	return p.client.executor.PutItem(p)
 }
 
-func (e *defaultExecutor) PutItem(p *PutItem) (res *PutItemResult, err error) {
+func (e *awsExecutor) PutItem(p *PutItem) (res *PutItemResult, err error) {
 	if p.req.ReturnValues != ReturnNone && p.req.ReturnValues != "" {
 		res = &PutItemResult{}
 		err = e.makeRequestUnmarshal("PutItem", &p.req, res)

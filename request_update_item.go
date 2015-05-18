@@ -63,7 +63,7 @@ func (u *UpdateItem) Execute() (res *UpdateItemResult, err error) {
 	return u.client.executor.UpdateItem(u)
 }
 
-func (e *defaultExecutor) UpdateItem(u *UpdateItem) (res *UpdateItemResult, err error) {
+func (e *awsExecutor) UpdateItem(u *UpdateItem) (res *UpdateItemResult, err error) {
 	if u.req.ReturnValues != ReturnNone && u.req.ReturnValues != "" {
 		res = &UpdateItemResult{}
 		err = e.makeRequestUnmarshal("UpdateItem", &u.req, res)

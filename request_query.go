@@ -77,7 +77,7 @@ func (q *Query) Execute() (result *QueryResult, err error) {
 	return q.client.executor.Query(q)
 }
 
-func (e *defaultExecutor) Query(q *Query) (result *QueryResult, err error) {
+func (e *awsExecutor) Query(q *Query) (result *QueryResult, err error) {
 	var response queryResponse
 	err = e.makeRequestUnmarshal("Query", &q.req, &response)
 	if err != nil {

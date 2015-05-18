@@ -24,22 +24,26 @@ type Executor interface {
 	CreateTable(*schema.CreateRequest) (*schema.CreateResponse, error)
 }
 
-type defaultExecutor struct {
+type awsExecutor struct {
 	endpoint string
 	caller   http.Client
 	aws      awsInfo
 }
 
-/*
-Override the endpoint for this client.
-
-Mostly this is for testing and the defaults should suffice in production.
-*/
-func (e *defaultExecutor) SetEndpoint(endpoint string) {
-	e.endpoint = endpoint
+// Create an AWS executor with a specified endpoint and AWS parameters.
+func NewAwsExecutor(endpoint, region, accessKey, secretKey string) Executor {
+	return &awsExecutor{
+		endpoint: endpoint,
+		aws: awsInfo{
+			Region:    region,
+			AccessKey: accessKey,
+			SecretKey: secretKey,
+			Service:   "dynamodb",
+		},
+	}
 }
 
-func (e *defaultExecutor) makeRequest(target string, document interface{}) ([]byte, error) {
+func (e *awsExecutor) makeRequest(target string, document interface{}) ([]byte, error) {
 	buf, err := json.Marshal(document)
 	// log.Printf("Request Body: \n%s\n\n", buf)
 	if err != nil {
@@ -66,7 +70,7 @@ func (e *defaultExecutor) makeRequest(target string, document interface{}) ([]by
 	return responseBytes(response)
 }
 
-func (e *defaultExecutor) makeRequestUnmarshal(method string, document interface{}, dest interface{}) (err error) {
+func (e *awsExecutor) makeRequestUnmarshal(method string, document interface{}, dest interface{}) (err error) {
 	body, err := e.makeRequest(method, document)
 	if err != nil {
 		return
