@@ -1,7 +1,7 @@
 package dynatest
 
 import (
-	"github.com/crast/dynago"
+	"github.com/underarmour/dynago"
 	"testing"
 )
 

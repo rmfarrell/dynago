@@ -1,7 +1,7 @@
 package dynago
 
 import (
-	"github.com/crast/dynago/schema"
+	"github.com/underarmour/dynago/schema"
 )
 
 const DynamoTargetPrefix = "DynamoDB_20120810." // This is the Dynamo API version we support

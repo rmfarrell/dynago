@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/crast/dynago/schema"
+	"github.com/underarmour/dynago/schema"
 )
 
 type functional struct {

@@ -2,7 +2,7 @@ package dynago_test
 
 import (
 	"fmt"
-	"github.com/crast/dynago"
+	"github.com/underarmour/dynago"
 )
 
 var endpoint, accessKey, secretKey, table string

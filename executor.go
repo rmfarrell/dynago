@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/crast/dynago/schema"
+	"github.com/underarmour/dynago/schema"
 )
 
 /*

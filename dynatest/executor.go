@@ -1,8 +1,8 @@
 package dynatest
 
 import (
-	"github.com/crast/dynago"
-	"github.com/crast/dynago/schema"
+	"github.com/underarmour/dynago"
+	"github.com/underarmour/dynago/schema"
 )
 
 // A Mock executor

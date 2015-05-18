@@ -1,7 +1,7 @@
 package dynago
 
 import (
-	"github.com/crast/dynago/schema"
+	"github.com/underarmour/dynago/schema"
 )
 
 func (e *awsExecutor) CreateTable(req *schema.CreateRequest) (*schema.CreateResponse, error) {

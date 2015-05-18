@@ -2,8 +2,8 @@ package dynago_test
 
 import (
 	"fmt"
-	"github.com/crast/dynago"
-	"github.com/crast/dynago/schema"
+	"github.com/underarmour/dynago"
+	"github.com/underarmour/dynago/schema"
 )
 
 func ExampleClient_CreateTable_basic(client *dynago.Client) {

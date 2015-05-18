@@ -15,9 +15,9 @@ Installation
 ------------
 Install using `go get`:
 
-    go get github.com/crast/dynago
+    go get github.com/underarmour/dynago
 
-Docs are at http://godoc.org/github.com/crast/dynago
+Docs are at http://godoc.org/github.com/underarmour/dynago
 
 Example
 -------
