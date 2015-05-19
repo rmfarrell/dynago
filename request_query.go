@@ -5,10 +5,10 @@ type queryRequest struct {
 	IndexName string `json:",omitempty"`
 
 	// Filtering and query expressions
-	KeyConditionExpression    string   `json:",omitempty"`
-	FilterExpression          string   `json:",omitempty"`
-	ProjectionExpression      string   `json:",omitempty"`
-	ExpressionAttributeValues Document `json:",omitempty"`
+	KeyConditionExpression string `json:",omitempty"`
+	FilterExpression       string `json:",omitempty"`
+	ProjectionExpression   string `json:",omitempty"`
+	expressionAttributes
 
 	CapacityDetail   CapacityDetail `json:"ReturnConsumedCapacity,omitempty"`
 	ConsistentRead   *bool          `json:",omitempty"`
@@ -61,7 +61,7 @@ func (q Query) ProjectionExpression(expression string) *Query {
 
 // Shortcut to set a single parameter for ExpressionAttributeValues.
 func (q Query) Param(key string, value interface{}) *Query {
-	paramHelper(&q.req.ExpressionAttributeValues, key, value)
+	q.req.paramHelper(key, value)
 	return &q
 }
 
@@ -99,21 +99,4 @@ func (e *awsExecutor) Query(q *Query) (result *QueryResult, err error) {
 type QueryResult struct {
 	Items []Document
 	Count int // The total number of items (for pagination)
-}
-
-// Helper for a variety of endpoint types to build a params dictionary.
-func paramHelper(doc *Document, key string, value interface{}) {
-	params := paramCopy(doc, 1)
-	params[key] = value
-}
-
-func paramCopy(doc *Document, extendBy int) Document {
-	params := make(Document, len(*doc)+extendBy)
-	if *doc != nil {
-		for k, v := range *doc {
-			params[k] = v
-		}
-	}
-	*doc = params
-	return params
 }

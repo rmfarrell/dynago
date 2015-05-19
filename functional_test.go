@@ -58,6 +58,27 @@ func TestGet(t *testing.T) {
 	assert.Equal(dynago.Number("42"), response.Item["Id"])
 }
 
+func TestConditionalPut(t *testing.T) {
+	assert, client := funcTest.setUp(t)
+	doc := person(45, "Joe")
+	doc["Count"] = 94
+	client.PutItem("Person", doc).Execute()
+
+	doc["Count"] = 45
+
+	basePut := client.PutItem("Person", doc).
+		ConditionExpression("#c > :val").
+		Param("#c", "Count")
+
+	_, err := basePut.Param(":val", 100).Execute()
+
+	e := err.(*dynago.Error)
+	assert.Equal(dynago.ErrorConditionFailed, e.Type)
+
+	_, err = basePut.Param(":val", 50).Execute()
+	assert.NoError(err)
+}
+
 func TestBatchWrite(t *testing.T) {
 	assert, client := funcTest.setUp(t)
 	_, err := client.PutItem("Person", person(4, "ToDelete")).Execute()

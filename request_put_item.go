@@ -4,8 +4,8 @@ type putItemRequest struct {
 	TableName string
 	Item      Document
 
-	ConditionExpression       string   `json:",omitempty"`
-	ExpressionAttributeValues Document `json:",omitempty"`
+	ConditionExpression string `json:",omitempty"`
+	expressionAttributes
 
 	// TODO ReturnConsumedCapacity string
 	// TODO ReturnItemCollectionMetrics
@@ -35,7 +35,7 @@ func (p PutItem) ConditionExpression(expression string) *PutItem {
 
 // Set parameter for ConditionExpression
 func (p PutItem) Param(key string, value interface{}) *PutItem {
-	paramHelper(&p.req.ExpressionAttributeValues, key, value)
+	p.req.paramHelper(key, value)
 	return &p
 }
 

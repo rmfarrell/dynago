@@ -5,8 +5,8 @@ type getItemRequest struct {
 
 	Key Document
 
-	ProjectionExpression      string   `json:",omitempty"`
-	ExpressionAttributeValues Document `json:",omitempty"`
+	ProjectionExpression string `json:",omitempty"`
+	expressionAttributes
 
 	// TODO ReturnConsumedCapacity string
 	ConsistentRead bool `json:",omitempty"`
@@ -35,7 +35,7 @@ func (p GetItem) ProjectionExpression(expression string) *GetItem {
 
 // Shortcut to set an ExpressionAttributeValue for used in expression query
 func (p GetItem) Param(key string, value interface{}) *GetItem {
-	paramHelper(&p.req.ExpressionAttributeValues, key, value)
+	p.req.paramHelper(key, value)
 	return &p
 }
 

@@ -4,9 +4,9 @@ type updateItemRequest struct {
 	Key       Document
 	TableName string
 
-	ConditionExpression       string   `json:",omitempty"`
-	UpdateExpression          string   `json:",omitempty"`
-	ExpressionAttributeValues Document `json:",omitempty"`
+	ConditionExpression string `json:",omitempty"`
+	UpdateExpression    string `json:",omitempty"`
+	expressionAttributes
 
 	ReturnConsumedCapacity      string       `json:",omitempty"` // TODO
 	ReturnItemCollectionMetrics string       `json:",omitempty"` // TODO
@@ -48,7 +48,7 @@ func (u *UpdateItem) UpdateExpression(expression string) *UpdateItem {
 
 // Quick-set parameters for all the values here.
 func (u *UpdateItem) Param(key string, value interface{}) *UpdateItem {
-	paramHelper(&u.req.ExpressionAttributeValues, key, value)
+	u.req.paramHelper(key, value)
 	return u
 }
 
