@@ -4,8 +4,6 @@ import (
 	"github.com/underarmour/dynago/schema"
 )
 
-const DynamoTargetPrefix = "DynamoDB_20120810." // This is the Dynamo API version we support
-
 /*
 Create a new dynamo client.
 
@@ -31,6 +29,15 @@ func NewClientExecutor(executor Executor) *Client {
 
 type Client struct {
 	executor Executor
+}
+
+/*
+Compose a batch write.
+
+Batch writes can compose a number of put or delete, even across multiple tables, in a single operation.
+*/
+func (c *Client) BatchWrite() *BatchWrite {
+	return newBatchWrite(c)
 }
 
 /*

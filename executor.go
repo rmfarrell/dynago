@@ -22,6 +22,7 @@ type Executor interface {
 	Query(*Query) (*QueryResult, error)
 	UpdateItem(*UpdateItem) (*UpdateItemResult, error)
 	CreateTable(*schema.CreateRequest) (*schema.CreateResponse, error)
+	BatchWriteItem(*BatchWrite) (*BatchWriteResult, error)
 }
 
 type awsExecutor struct {
@@ -54,7 +55,7 @@ func (e *awsExecutor) makeRequest(target string, document interface{}) ([]byte, 
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Add("x-amz-target", DynamoTargetPrefix+target)
+	req.Header.Add("x-amz-target", dynamoTargetPrefix+target)
 	req.Header.Add("content-type", "application/x-amz-json-1.0")
 	req.Header.Set("Host", req.URL.Host)
 	e.aws.signRequest(req, buf)

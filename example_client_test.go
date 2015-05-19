@@ -6,6 +6,10 @@ import (
 	"github.com/underarmour/dynago/schema"
 )
 
+func ExampleClient_BatchWrite(client *dynago.Client) {
+	client.BatchWrite()
+}
+
 func ExampleClient_CreateTable_basic(client *dynago.Client) {
 	// NewCreateRequest creates a table with simple defaults.
 	// You can use chaining to set the hash and range keys.
@@ -40,6 +44,21 @@ func ExampleClient_CreateTable_full(client *dynago.Client) {
 	}
 }
 
+func ExampleClient_PutItem(client *dynago.Client) {
+	doc := dynago.Document{
+		"Id":   42,
+		"Name": "Bob",
+		"Address": dynago.Document{
+			"City":  "Boston",
+			"State": "MA",
+		},
+	}
+	_, err := client.PutItem("Person", doc).Execute()
+	if err != nil {
+		fmt.Printf("PUT failed: %v", err)
+	}
+}
+
 func ExampleClient_Query(client *dynago.Client) {
 	result, err := client.Query("table").
 		FilterExpression("Foo > :val").
@@ -53,6 +72,25 @@ func ExampleClient_Query(client *dynago.Client) {
 	}
 }
 
-func ExampleClient_PutItem() {
+func ExampleClient_UpdateItem(client *dynago.Client) {
+	_, err := client.UpdateItem("Person", dynago.HashKey("Id", 42)).
+		UpdateExpression("SET Name=:name").
+		Param(":name", "Joe").
+		Execute()
 
+	if err != nil {
+		fmt.Printf("UpdateItem failed: %v", err)
+	}
+}
+
+func ExampleClient_UpdateItem_atomicIncrement(client *dynago.Client, key dynago.Document) {
+	result, err := client.UpdateItem("Products", key).
+		UpdateExpression("SET ViewCount = ViewCount + :incr").
+		Param(":incr", 5).
+		ReturnValues(dynago.ReturnUpdatedNew).
+		Execute()
+
+	if err == nil {
+		fmt.Printf("View count is now %d", result.Attributes["ViewCount"])
+	}
 }

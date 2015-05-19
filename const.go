@@ -26,3 +26,5 @@ const (
 	ReturnAllNew     ReturnValues = "ALL_NEW"
 	ReturnUpdatedNew ReturnValues = "UPDATED_NEW"
 )
+
+const dynamoTargetPrefix = "DynamoDB_20120810." // This is the Dynamo API version we support

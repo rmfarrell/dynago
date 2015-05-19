@@ -1,18 +1,19 @@
-package dynago
+package dynago_test
 
 import (
 	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
 
+	"github.com/underarmour/dynago"
 	"github.com/underarmour/dynago/schema"
 )
 
 type functional struct {
-	client *Client
+	client *dynago.Client
 }
 
-func (f *functional) setUp(t *testing.T) (*assert.Assertions, *Client) {
+func (f *functional) setUp(t *testing.T) (*assert.Assertions, *dynago.Client) {
 	if testing.Short() {
 		t.SkipNow()
 	}
@@ -21,7 +22,8 @@ func (f *functional) setUp(t *testing.T) (*assert.Assertions, *Client) {
 		if endpoint == "" {
 			t.SkipNow()
 		}
-		f.client = NewClientExecutor(NewAwsExecutor(endpoint, "us-east-1", "AKIAEXAMPLE", "SECRETEXAMPLE"))
+		executor := dynago.NewAwsExecutor(endpoint, "us-east-1", "AKIAEXAMPLE", "SECRETEXAMPLE")
+		f.client = dynago.NewClientExecutor(executor)
 		makeTables(t, f.client)
 	}
 	return assert.New(t), f.client
@@ -29,7 +31,7 @@ func (f *functional) setUp(t *testing.T) (*assert.Assertions, *Client) {
 
 var funcTest functional
 
-func makeTables(t *testing.T, client *Client) {
+func makeTables(t *testing.T, client *dynago.Client) {
 	hashTable := schema.NewCreateRequest("Person").HashKey("Id", schema.Number)
 	hashRange := schema.NewCreateRequest("Posts").
 		HashKey("UserId", schema.Number).
@@ -46,12 +48,35 @@ func makeTables(t *testing.T, client *Client) {
 
 func TestGet(t *testing.T) {
 	assert, client := funcTest.setUp(t)
-	putResp, err := client.PutItem("Person", Document{"Id": 42, "Name": "Bob"}).Execute()
+	putResp, err := client.PutItem("Person", person(42, "Bob")).Execute()
 	assert.NoError(err)
 	assert.Nil(putResp)
 
-	response, err := client.GetItem("Person", HashKey("Id", 42)).Execute()
+	response, err := client.GetItem("Person", dynago.HashKey("Id", 42)).Execute()
 	assert.Equal("Bob", response.Item["Name"])
-	assert.IsType(Number("1"), response.Item["Id"])
-	assert.Equal(Number("42"), response.Item["Id"])
+	assert.IsType(dynago.Number("1"), response.Item["Id"])
+	assert.Equal(dynago.Number("42"), response.Item["Id"])
+}
+
+func TestBatchWrite(t *testing.T) {
+	assert, client := funcTest.setUp(t)
+	_, err := client.PutItem("Person", person(4, "ToDelete")).Execute()
+	assert.NoError(err)
+
+	p1 := person(1, "Joe")
+	p2 := person(2, "Mary")
+	p3 := person(3, "Amy")
+	_, err = client.BatchWrite().
+		Put("Person", p1, p2, p3).
+		Delete("Person", dynago.HashKey("Id", 4)).
+		Execute()
+
+	assert.NoError(err)
+
+	response, err := client.GetItem("Person", dynago.HashKey("Id", 2)).Execute()
+	assert.Equal("Mary", response.Item["Name"])
+}
+
+func person(id int, name string) dynago.Document {
+	return dynago.Document{"Id": id, "Name": name}
 }
