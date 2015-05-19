@@ -9,6 +9,10 @@ import (
 type Executor struct {
 }
 
+func (e *Executor) BatchWriteItem(*dynago.BatchWrite) (*dynago.BatchWriteResult, error) {
+	return nil, nil
+}
+
 func (e *Executor) GetItem(*dynago.GetItem) (*dynago.GetItemResult, error) {
 	return nil, nil
 }
