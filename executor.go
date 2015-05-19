@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
-	"log"
 	"net/http"
 
 	"github.com/underarmour/dynago/schema"
@@ -63,12 +62,21 @@ func (e *awsExecutor) makeRequest(target string, document interface{}) ([]byte, 
 	if err != nil {
 		return nil, err
 	}
+	respBody, err := responseBytes(response)
 	if response.StatusCode != http.StatusOK {
-		resp := make([]byte, response.ContentLength)
-		response.Body.Read(resp)
-		log.Printf(" Another Status %d \n%#v\n\n%#v\n\n%s", response.StatusCode, req, response, resp)
+		e := &Error{
+			Response:     response,
+			ResponseBody: respBody,
+		}
+		dest := &inputError{}
+		if err = json.Unmarshal(respBody, dest); err == nil {
+			e.parse(dest)
+		} else {
+			e.Message = err.Error()
+		}
+		err = e
 	}
-	return responseBytes(response)
+	return respBody, err
 }
 
 func (e *awsExecutor) makeRequestUnmarshal(method string, document interface{}, dest interface{}) (err error) {

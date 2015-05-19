@@ -65,6 +65,7 @@ func HashKey(name string, value interface{}) Document {
 	return Document{name: value}
 }
 
+// Helper to build a hash-range key.
 func HashRangeKey(hashName string, hashVal interface{}, rangeName string, rangeVal interface{}) Document {
 	return Document{
 		hashName:  hashVal,

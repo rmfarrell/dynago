@@ -60,7 +60,6 @@ Compose a Query on a dynamo table.
 
 This returns a new Query struct which you can compose via chaining to build the query you want.
 Then finish the chain by calling Execute() to run the query.
-
 */
 func (c *Client) Query(table string) *Query {
 	return newQuery(c, table)
