@@ -1,10 +1,5 @@
 package dynago
 
-const (
-	batchModePut    = 1
-	batchModeDelete = 2
-)
-
 type batchWriteItemRequest struct {
 	RequestItems BatchWriteTableMap
 }

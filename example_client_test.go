@@ -7,7 +7,15 @@ import (
 )
 
 func ExampleClient_BatchWrite(client *dynago.Client) {
-	client.BatchWrite()
+	record1 := dynago.Document{"Id": 1, "Name": "Person1"}
+	record2 := dynago.Document{"Id": 2, "Name": "Person2"}
+
+	// We can put and delete at the same time to multiple tables.
+	client.BatchWrite().
+		Put("Table1", record1, record2).
+		Put("Table2", dynago.Document{"Name": "Other"}).
+		Delete("Table2", dynago.HashKey("Id", 42)).
+		Execute()
 }
 
 func ExampleClient_CreateTable_basic(client *dynago.Client) {
