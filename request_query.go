@@ -13,7 +13,7 @@ type queryRequest struct {
 	CapacityDetail   CapacityDetail `json:"ReturnConsumedCapacity,omitempty"`
 	ConsistentRead   *bool          `json:",omitempty"`
 	ScanIndexForward *bool          `json:",omitempty"`
-	Limit            uint32         `json:",omitempty"`
+	Limit            uint           `json:",omitempty"`
 }
 
 type queryResponse struct {
@@ -69,6 +69,11 @@ func (q Query) Param(key string, value interface{}) *Query {
 func (q Query) Desc() *Query {
 	forward := false
 	q.req.ScanIndexForward = &forward
+	return &q
+}
+
+func (q Query) Limit(limit uint) *Query {
+	q.req.Limit = limit
 	return &q
 }
 
