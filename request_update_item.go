@@ -49,7 +49,7 @@ func (u *UpdateItem) UpdateExpression(expression string) *UpdateItem {
 // Quick-set a single parameter
 func (u UpdateItem) Param(key string, value interface{}) *UpdateItem {
 	u.req.paramHelper(key, value)
-	return u
+	return &u
 }
 
 // Set multiple parameters at once.
