@@ -39,6 +39,11 @@ func (p PutItem) Param(key string, value interface{}) *PutItem {
 	return &p
 }
 
+func (p PutItem) Params(params ...interface{}) *PutItem {
+	p.req.paramsHelper(params)
+	return &p
+}
+
 // Set ReturnValues.
 func (p PutItem) ReturnValues(returnValues ReturnValues) *PutItem {
 	p.req.ReturnValues = returnValues

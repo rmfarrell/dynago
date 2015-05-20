@@ -42,7 +42,8 @@ func (q Query) ConsistentRead(strong bool) *Query {
 }
 
 // Set a post-filter expression for the results we scan.
-func (q Query) FilterExpression(expression string) *Query {
+func (q Query) FilterExpression(expression string, params ...interface{}) *Query {
+	q.req.paramsHelper(params)
 	q.req.FilterExpression = expression
 	return &q
 }
@@ -62,6 +63,12 @@ func (q Query) ProjectionExpression(expression string) *Query {
 // Shortcut to set a single parameter for ExpressionAttributeValues.
 func (q Query) Param(key string, value interface{}) *Query {
 	q.req.paramHelper(key, value)
+	return &q
+}
+
+// Set a param, a document of params, or multiple params
+func (q Query) Params(params ...interface{}) *Query {
+	q.req.paramsHelper(params)
 	return &q
 }
 

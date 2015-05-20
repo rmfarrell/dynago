@@ -72,3 +72,8 @@ func HashRangeKey(hashName string, hashVal interface{}, rangeName string, rangeV
 		rangeName: rangeVal,
 	}
 }
+
+type Param struct {
+	Key   string
+	Value interface{}
+}

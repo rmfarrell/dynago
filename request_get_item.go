@@ -39,6 +39,11 @@ func (p GetItem) Param(key string, value interface{}) *GetItem {
 	return &p
 }
 
+func (p GetItem) Params(params ...interface{}) *GetItem {
+	p.req.paramsHelper(params)
+	return &p
+}
+
 // Set up this get to be a strongly consistent read.
 func (p GetItem) ConsistentRead() *GetItem {
 	p.req.ConsistentRead = true

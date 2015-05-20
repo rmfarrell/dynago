@@ -46,10 +46,16 @@ func (u *UpdateItem) UpdateExpression(expression string) *UpdateItem {
 	return u
 }
 
-// Quick-set parameters for all the values here.
-func (u *UpdateItem) Param(key string, value interface{}) *UpdateItem {
+// Quick-set a single parameter
+func (u UpdateItem) Param(key string, value interface{}) *UpdateItem {
 	u.req.paramHelper(key, value)
 	return u
+}
+
+// Set multiple parameters at once.
+func (u UpdateItem) Params(params ...interface{}) *UpdateItem {
+	u.req.paramsHelper(params)
+	return &u
 }
 
 // If set, then we will get return values of either updated or old fields (see ReturnValues const)
