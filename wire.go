@@ -10,6 +10,8 @@ func wireEncode(value interface{}) interface{} {
 		return &wireString{v}
 	case int:
 		return &wireNumber{strconv.Itoa(v)}
+	case int64:
+		return &wireNumber{strconv.FormatInt(v, 10)}
 	case bool:
 		return &wireBool{v}
 	case float64:
@@ -96,6 +98,8 @@ func wireDecode(original interface{}) interface{} {
 			return Number(val.(string))
 		case "NS":
 			return wireDecodeNumberSet(val)
+		case "SS":
+			return wireDecodeStringSet(val)
 		case "L":
 			return wireDecodeList(val)
 		}
@@ -105,6 +109,15 @@ func wireDecode(original interface{}) interface{} {
 
 func wireDecodeNumberSet(val interface{}) interface{} {
 	return Number(val.(string))
+}
+
+func wireDecodeStringSet(val interface{}) interface{} {
+	valSlice := val.([]interface{})
+	resultSlice := make(StringSet, len(valSlice))
+	for _, v := range valSlice {
+		resultSlice = append(resultSlice, v.(string))
+	}
+	return resultSlice
 }
 
 func wireDecodeList(val interface{}) interface{} {
