@@ -8,7 +8,7 @@ import (
 var region, accessKey, secretKey, table string
 var client dynago.Client
 
-func Example_query() {
+func Example() {
 	client := dynago.NewAwsClient(region, accessKey, secretKey)
 
 	query := client.Query(table).
@@ -36,4 +36,35 @@ func Example_atomicUpdateItem() {
 		// TODO error handling
 	}
 	fmt.Printf("We have now sold %d frobbers", result.Attributes["SoldCount"])
+}
+
+func Example_marshaling() {
+	type MyStruct struct {
+		Id          int64
+		Name        string
+		Description string
+		Tags        []string
+		Address     struct {
+			City  string
+			State string
+		}
+	}
+
+	var data MyStruct
+
+	doc := dynago.Document{
+		// Basic fields like numbers and strings get marshaled automatically
+		"Id":          data.Id,
+		"Name":        data.Name,
+		"Description": data.Description,
+		// StringSet is compatible with []string so we can simply cast it
+		"Tags": dynago.StringSet(data.Tags),
+		// We don't automatically marshal structs, nest it in a document
+		"Address": dynago.Document{
+			"City":  data.Address.City,
+			"State": data.Address.State,
+		},
+	}
+
+	client.PutItem("Table", doc).Execute()
 }
