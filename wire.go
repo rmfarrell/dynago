@@ -1,6 +1,7 @@
 package dynago
 
 import (
+	"encoding/base64"
 	"strconv"
 )
 
@@ -107,13 +108,24 @@ func wireDecode(original interface{}) interface{} {
 			return wireDecodeStringSet(val)
 		case "L":
 			return wireDecodeList(val)
+		case "M":
+			return wireDecodeMap(val)
+		case "B":
+			return wireDecodeBinary(val)
+		case "BS":
+			return wireDecodeBinarySet(val)
 		}
 	}
 	return nil
 }
 
 func wireDecodeNumberSet(val interface{}) interface{} {
-	return Number(val.(string))
+	valSlice := val.([]interface{})
+	resultSlice := make(NumberSet, len(valSlice))
+	for i, v := range valSlice {
+		resultSlice[i] = v.(string)
+	}
+	return resultSlice
 }
 
 func wireDecodeStringSet(val interface{}) interface{} {
@@ -126,7 +138,39 @@ func wireDecodeStringSet(val interface{}) interface{} {
 }
 
 func wireDecodeList(val interface{}) interface{} {
-	return nil // TODO
+	valSlice := val.([]interface{})
+	resultSlice := make(List, len(valSlice))
+	for i, v := range valSlice {
+		resultSlice[i] = wireDecode(v)
+	}
+	return resultSlice
+}
+
+func wireDecodeMap(val interface{}) interface{} {
+	m := val.(map[string]interface{})
+	output := make(Document, len(m))
+	for key, val := range m {
+		output[key] = wireDecode(val)
+	}
+	return output
+}
+
+func wireDecodeBinary(val interface{}) []byte {
+	s := val.(string)
+	buf, err := base64.StdEncoding.DecodeString(s)
+	if err != nil {
+		panic(err)
+	}
+	return buf
+}
+
+func wireDecodeBinarySet(val interface{}) interface{} {
+	valSlice := val.([]interface{})
+	resultSlice := make(BinarySet, len(valSlice))
+	for i, v := range valSlice {
+		resultSlice[i] = wireDecodeBinary(v)
+	}
+	return resultSlice
 }
 
 func anyInt(input interface{}) int64 {

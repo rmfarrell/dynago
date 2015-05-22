@@ -6,6 +6,7 @@ import (
 )
 
 func setUp(t *testing.T) (*assert.Assertions, *Client, *MockExecutor) {
+	t.Parallel()
 	executor := &MockExecutor{}
 	return assert.New(t), NewClient(executor), executor
 }

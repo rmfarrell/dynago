@@ -71,15 +71,51 @@ func TestWireEncodeBasic(t *testing.T) {
 }
 
 func TestWireEncodeErrors(t *testing.T) {
-	// TODO
+	assert := assert.New(t)
+	assert.Panics(func() {
+		wireEncode([]int{1, 2})
+	})
 }
 
 func TestWireDecode(t *testing.T) {
 	assert := assert.New(t)
-	type msi map[string]interface{}
+	assert.Panics(func() { wireDecode(42) })
+	decodeTest := func(k string, v interface{}) interface{} {
+		return wireDecode(map[string]interface{}{k: v})
+	}
 
-	// test wire decoding regression
-	assert.Equal(StringSet{"A", "B"}, wireDecode(map[string]interface{}{"SS": []interface{}{"A", "B"}}))
+	mapVal := map[string]interface{}{
+		"Key1": map[string]interface{}{"S": "ABC"},
+		"Key2": map[string]interface{}{"N": "123"},
+	}
+	listVal := []interface{}{mapVal["Key1"], mapVal["Key2"]}
 
-	// TODO more wire decoding tests
+	// Boolean
+	assert.Equal(true, decodeTest("BOOL", true))
+	assert.Equal(false, decodeTest("BOOL", false))
+	// Binary
+	assert.Equal([]byte("ABC"), decodeTest("B", "QUJD"))
+	assert.Equal(BinarySet{[]byte("ABC"), []byte("AB")}, decodeTest("BS", []interface{}{"QUJD", "QUI="}))
+	assert.Panics(func() { decodeTest("B", "QUJD=") })
+	// Lists (heterogeneous)
+	assert.Equal(List{"ABC", Number("123")}, decodeTest("L", listVal))
+	// Maps (heterogeneous)
+	assert.Equal(Document{"Key1": "ABC", "Key2": Number("123")}, decodeTest("M", mapVal))
+	// Nil
+	assert.Equal(nil, decodeTest("NULL", true))
+	// Number
+	assert.Equal(Number("45"), decodeTest("N", "45"))
+	assert.Equal(NumberSet{"123", "456"}, decodeTest("NS", []interface{}{"123", "456"}))
+	// Strings
+	assert.Equal("FooBar", decodeTest("S", "FooBar"))
+	assert.Equal(StringSet{"A", "B"}, decodeTest("SS", []interface{}{"A", "B"}))
+}
+
+func TestAnyInt(t *testing.T) {
+	assert := assert.New(t)
+	assert.Panics(func() { anyInt("foo") })
+	assert.Equal(int64(75), anyInt(int(75)))
+	assert.Equal(int64(75), anyInt(int64(75)))
+	assert.Equal(int64(75), anyInt(int32(75)))
+	assert.Equal(int64(75), anyInt(int16(75)))
 }
