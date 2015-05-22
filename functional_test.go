@@ -23,7 +23,7 @@ func (f *functional) setUp(t *testing.T) (*assert.Assertions, *dynago.Client) {
 			t.SkipNow()
 		}
 		executor := dynago.NewAwsExecutor(endpoint, "us-east-1", "AKIAEXAMPLE", "SECRETEXAMPLE")
-		f.client = dynago.NewClientExecutor(executor)
+		f.client = dynago.NewClient(executor)
 		makeTables(t, f.client)
 	}
 	return assert.New(t), f.client

@@ -5,11 +5,11 @@ import (
 	"github.com/underarmour/dynago"
 )
 
-var endpoint, accessKey, secretKey, table string
+var region, accessKey, secretKey, table string
 var client dynago.Client
 
 func Example_query() {
-	client := dynago.NewClient(endpoint, accessKey, secretKey)
+	client := dynago.NewAwsClient(region, accessKey, secretKey)
 
 	query := client.Query(table).
 		FilterExpression("NumViews > :views").

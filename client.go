@@ -5,25 +5,24 @@ import (
 )
 
 /*
-Create a new dynamo client.
+Create a new dynamo client set up for AWS executor.
 
 region is the AWS region, e.g. us-east-1.
 accessKey is your amazon access key ID.
 secretKey is your amazon secret key ID.
 */
-func NewClient(region string, accessKey string, secretKey string) *Client {
+func NewAwsClient(region string, accessKey string, secretKey string) *Client {
 	endpoint := "https://dynamodb." + region + ".amazonaws.com/"
-	return &Client{
-		executor: NewAwsExecutor(endpoint, region, accessKey, secretKey),
-	}
+	return NewClient(NewAwsExecutor(endpoint, region, accessKey, secretKey))
 }
 
 /*
-Create a new client with a custom executor.
+Create a new client.
 
-This is mainly used for unit test and mock scenarios.
+For most use cases other than testing and mocking, you should be able to use
+NewAwsClient which is a shortcut for this
 */
-func NewClientExecutor(executor Executor) *Client {
+func NewClient(executor Executor) *Client {
 	return &Client{executor}
 }
 

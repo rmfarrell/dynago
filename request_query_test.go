@@ -6,7 +6,7 @@ import (
 
 // This test ensures that queries are properly copied (so they can be used across goroutines)
 func TestQueryCopyProperty(t *testing.T) {
-	assert, _ := setUp(t)
+	assert, _, _ := setUp(t)
 	q := &Query{}
 	q2 := q.FilterExpression("hello")
 	assert.Equal("hello", q2.req.FilterExpression)
@@ -22,7 +22,7 @@ func TestQueryCopyProperty(t *testing.T) {
 
 // This test checks that queries can be reused
 func TestQueryReuse(t *testing.T) {
-	assert, client := setUp(t)
+	assert, client, _ := setUp(t)
 	q := client.Query("foo").
 		ConsistentRead(true).
 		KeyConditionExpression("Foo > :offset").
