@@ -56,5 +56,14 @@ So a conditional PutItem might look like:
 
 In this case, we only execute the query if the value at document path Foo.Name was the
 string value "Bob". Note we used the "Param" helper for setting both values.
+
+There are also helpers that let you set multiple parameters, or inline with expressions:
+
+	query.FilterExpression("#foo > :foo", Param{":foo", 45}, Param{"#foo", "Foo"})
+	-or-
+	query.Params(Param{":foo", 45}, Param{"#foo", "Foo"})
+	-or-
+	query.Params(Document{":foo":45, "#foo": "Foo"})
+
 */
 package dynago

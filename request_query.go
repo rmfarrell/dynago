@@ -54,13 +54,15 @@ func (q Query) FilterExpression(expression string, params ...interface{}) *Query
 }
 
 // Set a condition expression on the key to narrow down what we scan
-func (q Query) KeyConditionExpression(expression string) *Query {
+func (q Query) KeyConditionExpression(expression string, params ...interface{}) *Query {
+	q.req.paramsHelper(params)
 	q.req.KeyConditionExpression = expression
 	return &q
 }
 
 // Set a Projection Expression for controlling which attributes are returned.
-func (q Query) ProjectionExpression(expression string) *Query {
+func (q Query) ProjectionExpression(expression string, params ...interface{}) *Query {
+	q.req.paramsHelper(params)
 	q.req.ProjectionExpression = expression
 	return &q
 }
