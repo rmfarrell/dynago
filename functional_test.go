@@ -41,6 +41,9 @@ func makeTables(t *testing.T, client *dynago.Client) {
 	for _, table := range tables {
 		_, err := client.CreateTable(table)
 		if err != nil {
+			if e, ok := err.(*dynago.Error); ok && e.Type == dynago.ErrorResourceInUse {
+				continue
+			}
 			panic(err)
 		}
 	}
@@ -98,6 +101,20 @@ func TestBatchWrite(t *testing.T) {
 	assert.Equal("Mary", response.Item["Name"])
 }
 
+func TestUpdateItemConditional(t *testing.T) {
+	assert, client := funcTest.setUp(t)
+	_, err := client.PutItem("Person", person(5, "ToUpdate")).Execute()
+	assert.NoError(err)
+	result, err := client.UpdateItem("Person", dynago.HashKey("Id", 5)).
+		UpdateExpression("SET #n = :name").
+		Param("#n", "Name").Param(":name", "Bob").
+		ReturnValues(dynago.ReturnUpdatedNew).Execute()
+	assert.NoError(err)
+	assert.NotNil(result)
+	assert.NotNil(result.Attributes)
+	assert.Equal("Bob", result.Attributes["Name"])
+}
+
 func person(id int, name string) dynago.Document {
-	return dynago.Document{"Id": id, "Name": name}
+	return dynago.Document{"Id": id, "Name": name, "IncVal": 1}
 }

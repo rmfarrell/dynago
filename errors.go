@@ -45,16 +45,18 @@ type inputError struct {
 type AmazonError int
 
 const (
-	ErrorUnknown                AmazonError = iota
-	ErrorConditionFailed                    // When a conditional put/update fails due to condition not being met
-	ErrorCollectionSizeExceeded             // Item collection (local secondary index) too large
-	ErrorThroughputExceeded                 // We exceeded our provisioned throughput for this table or shard
-	ErrorNotFound                           // Resource referenced by key not found
-	ErrorInternalFailure                    // Internal server error
-	ErrorAuth                               // Encapsulates various authorization errors
-	ErrorInvalidParameter                   // Encapsulates many forms of invalid input errors
-	ErrorServiceUnavailable                 // Amazon service unavailable
-	ErrorThrottling
+	ErrorUnknown AmazonError = iota
+
+	ErrorConditionFailed        // When a conditional put/update fails due to condition not being met
+	ErrorCollectionSizeExceeded // Item collection (local secondary index) too large
+	ErrorThroughputExceeded     // We exceeded our provisioned throughput for this table or shard
+	ErrorNotFound               // Resource referenced by key not found
+	ErrorInternalFailure        // Internal server error
+	ErrorAuth                   // Encapsulates various authorization errors
+	ErrorInvalidParameter       // Encapsulates many forms of invalid input errors
+	ErrorServiceUnavailable     // Amazon service unavailable
+	ErrorThrottling             // Amazon is throttling us, try later
+	ErrorResourceInUse          // Tried to create a table already created, delete a table in CREATING state, etc.
 )
 
 type amazonErrorConfig struct {
@@ -81,6 +83,7 @@ var AmazonErrors = []amazonErrorConfig{
 	{"OptInRequired", 403, ErrorAuth},
 	{"ProvisionedThroughputExceededException", 400, ErrorThroughputExceeded},
 	{"RequestExpired", 400, ErrorAuth},
+	{"ResourceInUseException", 400, ErrorResourceInUse},
 	{"ServiceUnavailable", 503, ErrorServiceUnavailable},
 	{"ValidationError", 400, ErrorInvalidParameter},
 }
