@@ -1,7 +1,5 @@
 package dynago
 
-import "github.com/underarmour/dynago/schema"
-
 /*
 A Mock executor for purpose of testing.
 
@@ -29,77 +27,173 @@ to the application.
 
 		// assert things on the executor.
 		assert.Equal(true, executor.PutItemCalled)
-		assert.Equal("mytable", executor.PutItemCalledWithTable)
+		assert.Equal("mytable", executor.PutItemCall.Table)
 		... and so on
 	}
 
 */
 type MockExecutor struct {
-	PutItemCalled          bool
-	PutItemCalledWithTable string
-	PutItemCalledWithItem  Document
-	PutItemResult          *PutItemResult
-	PutItemError           error
+	Calls []MockExecutorCall // All calls made through this executor
 
-	GetItemCalled          bool
-	GetItemCalledWithTable string
-	GetItemCalledWithKey   Document
-	GetItemResultItem      Document
-	GetItemError           error
+	PutItemCalled bool
+	PutItemCall   *MockExecutorCall
+	PutItemResult *PutItemResult
+	PutItemError  error
 
-	BatchWriteItemCalled                  bool
-	BatchWriteItemCalledWithDeleteTable   string
-	BatchWriteItemCalledWithDeleteActions []Document
-	BatchWriteItemError                   error
+	GetItemCalled     bool
+	GetItemCall       *MockExecutorCall
+	GetItemResultItem Document
+	GetItemError      error
 
-	QueryCalled                              bool
-	QueryCalledWithTable                     string
-	QueryCalledWithIndexName                 string
-	QueryCalledWithKeyConditionExpression    string
-	QueryCalledWithExpressionAttributeValues Document
-	QueryError                               error
-	QueryResultItems                         []Document
+	BatchWriteItemCalled bool
+	BatchWriteItemCall   *MockExecutorCall
+	BatchWriteItemError  error
+
+	QueryCalled      bool
+	QueryCall        *MockExecutorCall
+	QueryError       error
+	QueryResultItems []Document
+
+	UpdateItemCalled bool
+	UpdateItemCall   *MockExecutorCall
+	UpdateItemResult *UpdateItemResult
+	UpdateItemError  error
+}
+
+// Mock executor calls
+type MockExecutorCall struct {
+	// used for all calls
+	Method string
+	Table  string
+
+	// used for calls with expressions (most of them)
+	ExpressionAttributeNames  map[string]string
+	ExpressionAttributeValues Document
+
+	Key                 Document
+	Item                Document
+	UpdateExpression    string
+	ConditionExpression string
+	ReturnValues        ReturnValues
+	ConsistentRead      bool
+
+	// Query only
+	IndexName              string
+	KeyConditionExpression string
+	FilterExpression       string
+	Ascending              bool
+	Limit                  uint
+
+	BatchWrites BatchWriteTableMap
+}
+
+func (e *MockExecutor) BatchWriteItem(batchWrite *BatchWrite) (*BatchWriteResult, error) {
+	e.BatchWriteItemCalled = true
+	e.addCall(&e.BatchWriteItemCall, MockExecutorCall{
+		Method:      "BatchWriteItem",
+		BatchWrites: batchWrite.buildTableMap(),
+	})
+
+	return &BatchWriteResult{}, e.BatchWriteItemError
 }
 
 func (e *MockExecutor) GetItem(getItem *GetItem) (*GetItemResult, error) {
 	e.GetItemCalled = true
-	e.GetItemCalledWithTable = getItem.req.TableName
-	e.GetItemCalledWithKey = getItem.req.Key
+	call := MockExecutorCall{
+		Method:         "GetItem",
+		Table:          getItem.req.TableName,
+		Key:            getItem.req.Key,
+		ConsistentRead: getItem.req.ConsistentRead,
+	}
+	e.GetItemCall = &call
+	e.Calls = append(e.Calls, call)
 	return &GetItemResult{Item: e.GetItemResultItem}, e.GetItemError
 }
 
 func (e *MockExecutor) PutItem(putItem *PutItem) (*PutItemResult, error) {
 	e.PutItemCalled = true
-	e.PutItemCalledWithTable = putItem.req.TableName
-	e.PutItemCalledWithItem = putItem.req.Item
+	call := MockExecutorCall{
+		Method:                    "PutItem",
+		Table:                     putItem.req.TableName,
+		Item:                      putItem.req.Item,
+		ReturnValues:              putItem.req.ReturnValues,
+		ConditionExpression:       putItem.req.ConditionExpression,
+		ExpressionAttributeNames:  putItem.req.ExpressionAttributeNames,
+		ExpressionAttributeValues: putItem.req.ExpressionAttributeValues,
+	}
+	e.PutItemCall = &call
+	e.Calls = append(e.Calls, call)
 	return e.PutItemResult, e.PutItemError
 }
 
 func (e *MockExecutor) Query(query *Query) (*QueryResult, error) {
 	e.QueryCalled = true
-	e.QueryCalledWithTable = query.req.TableName
-	e.QueryCalledWithIndexName = query.req.IndexName
-	e.QueryCalledWithKeyConditionExpression = query.req.KeyConditionExpression
-	e.QueryCalledWithExpressionAttributeValues = query.req.ExpressionAttributeValues
+	ascending, consistent := true, false
+	if query.req.ScanIndexForward != nil {
+		ascending = *query.req.ScanIndexForward
+	}
+	if query.req.ConsistentRead != nil {
+		consistent = *query.req.ConsistentRead
+	}
+
+	e.addCall(&e.QueryCall, MockExecutorCall{
+		Method:                    "Query",
+		Table:                     query.req.TableName,
+		IndexName:                 query.req.IndexName,
+		KeyConditionExpression:    query.req.KeyConditionExpression,
+		FilterExpression:          query.req.FilterExpression,
+		ExpressionAttributeNames:  query.req.ExpressionAttributeNames,
+		ExpressionAttributeValues: query.req.ExpressionAttributeValues,
+		Ascending:                 ascending,
+		ConsistentRead:            consistent,
+		Limit:                     query.req.Limit,
+	})
+
 	return &QueryResult{Items: e.QueryResultItems}, e.QueryError
 }
 
-func (e *MockExecutor) UpdateItem(*UpdateItem) (*UpdateItemResult, error) {
-	return nil, nil
+func (e *MockExecutor) UpdateItem(update *UpdateItem) (*UpdateItemResult, error) {
+	e.UpdateItemCalled = true
+	e.addCall(&e.UpdateItemCall, MockExecutorCall{
+		Method:                    "UpdateItem",
+		Table:                     update.req.TableName,
+		UpdateExpression:          update.req.UpdateExpression,
+		ConditionExpression:       update.req.ConditionExpression,
+		ExpressionAttributeNames:  update.req.ExpressionAttributeNames,
+		ExpressionAttributeValues: update.req.ExpressionAttributeValues,
+	})
+	return e.UpdateItemResult, e.UpdateItemError
 }
 
-func (e *MockExecutor) CreateTable(*schema.CreateRequest) (*schema.CreateResponse, error) {
-	return nil, nil
-}
-
-func (e *MockExecutor) BatchWriteItem(batchWrite *BatchWrite) (*BatchWriteResult, error) {
-	e.BatchWriteItemCalled = true
-	e.BatchWriteItemCalledWithDeleteTable = batchWrite.deletes.table
-	for deleteRequest := batchWrite.deletes; deleteRequest != nil; deleteRequest = batchWrite.deletes.next {
-		e.BatchWriteItemCalledWithDeleteActions = append(e.BatchWriteItemCalledWithDeleteActions, deleteRequest.item)
+// Currently we don't implement mocking for SchemaExecutor. Returns nil.
 func (e *MockExecutor) SchemaExecutor() SchemaExecutor {
 	return nil
 }
+
+// Reduce boilerplate on adding a call
+func (e *MockExecutor) addCall(target **MockExecutorCall, call MockExecutorCall) {
+	e.Calls = append(e.Calls, call)
+	if target != nil {
+		*target = &call
 	}
-	return nil, e.BatchWriteItemError
+}
+
+// Convenience method to get delete keys in this batch write map for a specific table
+func (m BatchWriteTableMap) GetDeleteKeys(table string) (deletes []Document) {
+	for _, entry := range m[table] {
+		if entry.DeleteRequest != nil {
+			deletes = append(deletes, entry.DeleteRequest.Key)
+		}
+	}
+	return
+}
+
+// Convenience method to get all put documents in this batch write map for a specific table
+func (m BatchWriteTableMap) GetPuts(table string) (puts []Document) {
+	for _, entry := range m[table] {
+		if entry.PutRequest != nil {
+			puts = append(puts, entry.PutRequest.Item)
+		}
+	}
+	return
 }

@@ -74,13 +74,12 @@ func (b *BatchWrite) Execute() (*BatchWriteResult, error) {
 	return b.client.executor.BatchWriteItem(b)
 }
 
-func (e *awsExecutor) BatchWriteItem(b *BatchWrite) (result *BatchWriteResult, err error) {
-	req := batchWriteItemRequest{
-		RequestItems: BatchWriteTableMap{},
-	}
+// Build the table map that is represented by this BatchWrite
+func (b *BatchWrite) buildTableMap() (m BatchWriteTableMap) {
+	m = BatchWriteTableMap{}
 	ensure := func(table string) (r *BatchWriteTableEntry) {
 		r = &BatchWriteTableEntry{}
-		req.RequestItems[table] = append(req.RequestItems[table], r)
+		m[table] = append(m[table], r)
 		return
 	}
 
@@ -90,6 +89,13 @@ func (e *awsExecutor) BatchWriteItem(b *BatchWrite) (result *BatchWriteResult, e
 
 	for d := b.deletes; d != nil; d = d.next {
 		ensure(d.table).SetDelete(d.item)
+	}
+	return
+}
+
+func (e *awsExecutor) BatchWriteItem(b *BatchWrite) (result *BatchWriteResult, err error) {
+	req := batchWriteItemRequest{
+		RequestItems: b.buildTableMap(),
 	}
 
 	result = &BatchWriteResult{}
