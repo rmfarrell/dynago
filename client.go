@@ -23,11 +23,12 @@ For most use cases other than testing and mocking, you should be able to use
 NewAwsClient which is a shortcut for this
 */
 func NewClient(executor Executor) *Client {
-	return &Client{executor}
+	return &Client{executor, executor.SchemaExecutor()}
 }
 
 type Client struct {
-	executor Executor
+	executor       Executor
+	schemaExecutor SchemaExecutor
 }
 
 /*
@@ -86,5 +87,5 @@ func (c *Client) UpdateItem(table string, key Document) *UpdateItem {
 Create a table.
 */
 func (c *Client) CreateTable(req *schema.CreateRequest) (*schema.CreateResponse, error) {
-	return c.executor.CreateTable(req)
+	return c.schemaExecutor.CreateTable(req)
 }

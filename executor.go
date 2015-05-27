@@ -14,14 +14,20 @@ This interface defines how all the various queries manage their internal executi
 
 Executor is primarily provided so that testing and mocking can be done on
 the API level, not just the transport level.
+
+Executor can also optionally return a SchemaExecutor to execute schema actions.
 */
 type Executor interface {
+	BatchWriteItem(*BatchWrite) (*BatchWriteResult, error)
 	GetItem(*GetItem) (*GetItemResult, error)
 	PutItem(*PutItem) (*PutItemResult, error)
 	Query(*Query) (*QueryResult, error)
 	UpdateItem(*UpdateItem) (*UpdateItemResult, error)
+	SchemaExecutor() SchemaExecutor
+}
+
+type SchemaExecutor interface {
 	CreateTable(*schema.CreateRequest) (*schema.CreateResponse, error)
-	BatchWriteItem(*BatchWrite) (*BatchWriteResult, error)
 }
 
 type awsExecutor struct {
@@ -86,6 +92,10 @@ func (e *awsExecutor) makeRequestUnmarshal(method string, document interface{}, 
 	}
 	err = json.Unmarshal(body, dest)
 	return
+}
+
+func (e *awsExecutor) SchemaExecutor() SchemaExecutor {
+	return e
 }
 
 func responseBytes(response *http.Response) (buf []byte, err error) {

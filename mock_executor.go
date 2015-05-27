@@ -97,6 +97,9 @@ func (e *MockExecutor) BatchWriteItem(batchWrite *BatchWrite) (*BatchWriteResult
 	e.BatchWriteItemCalledWithDeleteTable = batchWrite.deletes.table
 	for deleteRequest := batchWrite.deletes; deleteRequest != nil; deleteRequest = batchWrite.deletes.next {
 		e.BatchWriteItemCalledWithDeleteActions = append(e.BatchWriteItemCalledWithDeleteActions, deleteRequest.item)
+func (e *MockExecutor) SchemaExecutor() SchemaExecutor {
+	return nil
+}
 	}
 	return nil, e.BatchWriteItemError
 }
