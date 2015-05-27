@@ -86,6 +86,7 @@ var AmazonErrors = []amazonErrorConfig{
 	{"ResourceInUseException", 400, ErrorResourceInUse},
 	{"ServiceUnavailable", 503, ErrorServiceUnavailable},
 	{"ValidationError", 400, ErrorInvalidParameter},
+	{"ValidationException", 400, ErrorInvalidParameter},
 }
 
 var amazonErrorMap map[string]*amazonErrorConfig
