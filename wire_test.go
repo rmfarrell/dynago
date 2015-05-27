@@ -61,3 +61,13 @@ func TestWireEncodeBasic(t *testing.T) {
 func TestWireEncodeErrors(t *testing.T) {
 	// TODO
 }
+
+func TestWireDecode(t *testing.T) {
+	assert := assert.New(t)
+	type msi map[string]interface{}
+
+	// test wire decoding regression
+	assert.Equal(StringSet{"A", "B"}, wireDecode(map[string]interface{}{"SS": []interface{}{"A", "B"}}))
+
+	// TODO more wire decoding tests
+}

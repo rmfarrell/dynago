@@ -114,8 +114,8 @@ func wireDecodeNumberSet(val interface{}) interface{} {
 func wireDecodeStringSet(val interface{}) interface{} {
 	valSlice := val.([]interface{})
 	resultSlice := make(StringSet, len(valSlice))
-	for _, v := range valSlice {
-		resultSlice = append(resultSlice, v.(string))
+	for i, v := range valSlice {
+		resultSlice[i] = v.(string)
 	}
 	return resultSlice
 }
