@@ -115,6 +115,49 @@ func TestUpdateItemConditional(t *testing.T) {
 	assert.Equal("Bob", result.Attributes["Name"])
 }
 
+func TestTableActions(t *testing.T) {
+	tables := []string{"abc", "def", "ghi"}
+	assert, client := funcTest.setUp(t)
+	for _, name := range tables {
+		_, err := client.CreateTable(schema.NewCreateRequest(name).HashKey("Id", schema.Number))
+		if e, ok := err.(*dynago.Error); !ok || e.Type != dynago.ErrorResourceInUse {
+			assert.NoError(err)
+		}
+	}
+	list, err := client.ListTables().Limit(10).Execute()
+	assert.NoError(err)
+	assert.NotNil(list)
+	assert.True(len(list.TableNames) > len(tables))
+	assert.Nil(list.Next())
+
+	// Pagination of tables should work
+	list1, err := client.ListTables().Limit(2).Execute()
+	assert.NoError(err)
+	assert.NotNil(list1.Next())
+	assert.Equal(2, len(list1.TableNames))
+	assert.Equal(list.TableNames[:2], list1.TableNames[:2])
+	list2, err := list1.Next().Execute()
+	assert.Equal(list.TableNames[2:4], list2.TableNames[:2])
+
+	for _, name := range tables {
+		_, err := client.DeleteTable(name)
+		assert.NoError(err)
+	}
+
+}
+
+func TestDescribeTable(t *testing.T) {
+	assert, client := funcTest.setUp(t)
+	response, err := client.DescribeTable("Bogus")
+	assert.Error(err)
+
+	response, err = client.DescribeTable("Posts")
+	assert.NoError(err)
+	assert.Equal("Posts", response.Table.TableName)
+	assert.Equal(2, len(response.Table.AttributeDefinitions))
+	assert.Equal(0, len(response.Table.GlobalSecondaryIndexes))
+}
+
 func person(id int, name string) dynago.Document {
 	return dynago.Document{"Id": id, "Name": name, "IncVal": 1}
 }

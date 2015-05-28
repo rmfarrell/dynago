@@ -38,6 +38,32 @@ func (r *CreateRequest) ensureAttribute(name string, attributeType AttributeType
 	r.AttributeDefinitions = append(r.AttributeDefinitions, AttributeDefinition{name, attributeType})
 }
 
-type CreateResponse struct {
+type CreateResult struct {
 	TableDescription TableDescription
+}
+
+type DeleteRequest struct {
+	TableName string
+}
+
+type DeleteResult struct {
+	TableDescription TableDescription
+}
+
+type ListRequest struct {
+	ExclusiveStartTableName string `json:",omitempty"`
+	Limit                   uint   `json:",omitempty"`
+}
+
+type ListResponse struct {
+	LastEvaluatedTableName *string
+	TableNames             []string
+}
+
+type DescribeRequest struct {
+	TableName string
+}
+
+type DescribeResponse struct {
+	Table TableDescription
 }

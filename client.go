@@ -86,6 +86,19 @@ func (c *Client) UpdateItem(table string, key Document) *UpdateItem {
 /*
 Create a table.
 */
-func (c *Client) CreateTable(req *schema.CreateRequest) (*schema.CreateResponse, error) {
+func (c *Client) CreateTable(req *schema.CreateRequest) (*schema.CreateResult, error) {
 	return c.schemaExecutor.CreateTable(req)
+}
+
+// Delete a table.
+func (c *Client) DeleteTable(table string) (*schema.DeleteResult, error) {
+	return c.schemaExecutor.DeleteTable(&schema.DeleteRequest{table})
+}
+
+func (c *Client) DescribeTable(table string) (*schema.DescribeResponse, error) {
+	return c.schemaExecutor.DescribeTable(&schema.DescribeRequest{table})
+}
+
+func (c *Client) ListTables() *ListTables {
+	return &ListTables{client: c}
 }

@@ -20,6 +20,9 @@ type TableDescription struct {
 	TableSizeBytes   uint64
 	TableStatus      string
 	CreationDateTime float64
+
+	AttributeDefinitions   []AttributeDefinition
+	GlobalSecondaryIndexes []SecondaryIndexResponse
 }
 
 type ProvisionedThroughput struct {
@@ -35,4 +38,20 @@ type AttributeDefinition struct {
 type KeySchema struct {
 	AttributeName string
 	KeyType       KeyType
+}
+
+type SecondaryIndex struct {
+	IndexName             string
+	KeySchema             []KeySchema
+	Projection            interface{} // TODO
+	ProvisionedThroughput ProvisionedThroughput
+}
+
+// Secondary indexes as described in table descriptions
+type SecondaryIndexResponse struct {
+	SecondaryIndex
+	Backfilling    bool
+	IndexSizeBytes int
+	IndexStatus    string
+	ItemCount      int
 }

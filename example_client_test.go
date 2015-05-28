@@ -52,6 +52,18 @@ func ExampleClient_CreateTable_full(client *dynago.Client) {
 	}
 }
 
+func ExampleClient_ListTables_paging(client *dynago.Client) {
+	cursor := client.ListTables().Limit(100)
+	for cursor != nil {
+		response, err := cursor.Execute()
+		if err != nil {
+			break
+		}
+		fmt.Printf("%v", response.TableNames)
+		cursor = response.Next()
+	}
+}
+
 func ExampleClient_PutItem(client *dynago.Client) {
 	doc := dynago.Document{
 		"Id":   42,

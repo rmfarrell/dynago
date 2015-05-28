@@ -27,7 +27,10 @@ type Executor interface {
 }
 
 type SchemaExecutor interface {
-	CreateTable(*schema.CreateRequest) (*schema.CreateResponse, error)
+	CreateTable(*schema.CreateRequest) (*schema.CreateResult, error)
+	DeleteTable(*schema.DeleteRequest) (*schema.DeleteResult, error)
+	DescribeTable(*schema.DescribeRequest) (*schema.DescribeResponse, error)
+	ListTables(*ListTables) (*schema.ListResponse, error)
 }
 
 type awsExecutor struct {
