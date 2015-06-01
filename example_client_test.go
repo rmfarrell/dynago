@@ -92,6 +92,21 @@ func ExampleClient_Query(client *dynago.Client) {
 	}
 }
 
+func ExampleClient_Query_pagination(client *dynago.Client) {
+	query := client.Query("table").Limit(50)
+	// Keep getting results in a loop until there are no more.
+	for query != nil {
+		result, err := query.Execute()
+		if err != nil {
+			break
+		}
+		for _, item := range result.Items {
+			fmt.Printf("Result ID %d\n", item["Id"])
+		}
+		query = result.Next()
+	}
+}
+
 func ExampleClient_UpdateItem(client *dynago.Client) {
 	_, err := client.UpdateItem("Person", dynago.HashKey("Id", 42)).
 		UpdateExpression("SET Name=:name").

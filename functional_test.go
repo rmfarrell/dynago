@@ -17,6 +17,8 @@ func (f *functional) setUp(t *testing.T) (*assert.Assertions, *dynago.Client) {
 	if testing.Short() {
 		t.SkipNow()
 	}
+	dynago.DebugFunc = t.Logf
+
 	if f.client == nil {
 		endpoint := os.Getenv("DYNAGO_TEST_ENDPOINT")
 		if endpoint == "" {
@@ -35,7 +37,7 @@ func makeTables(t *testing.T, client *dynago.Client) {
 	hashTable := schema.NewCreateRequest("Person").HashKey("Id", schema.Number)
 	hashRange := schema.NewCreateRequest("Posts").
 		HashKey("UserId", schema.Number).
-		RangeKey("Dated", schema.String)
+		RangeKey("Dated", schema.Number)
 
 	tables := []*schema.CreateRequest{hashTable, hashRange}
 	for _, table := range tables {
@@ -158,6 +160,42 @@ func TestDescribeTable(t *testing.T) {
 	assert.Equal(0, len(response.Table.GlobalSecondaryIndexes))
 }
 
+func TestQueryPagination(t *testing.T) {
+	assert, client := funcTest.setUp(t)
+
+	// Add some posts
+	writer := client.BatchWrite()
+	for i := 100; i < 118; i++ {
+		writer = writer.Put("Posts", dynago.Document{"UserId": 42, "Dated": i})
+	}
+	_, err := writer.Execute()
+	assert.NoError(err)
+
+	// Paginate the posts
+	q := client.Query("Posts").
+		KeyConditionExpression("UserId = :uid", dynago.Param{":uid", 42}).
+		Limit(10)
+	results, err := q.Execute()
+	assert.NoError(err)
+	assert.Equal(10, len(results.Items))
+	assert.Equal(dynago.Number("42"), results.Items[0]["UserId"])
+	assert.Equal(dynago.Number("100"), results.Items[0]["Dated"])
+	assert.NotNil(results.LastEvaluatedKey)
+	assert.Equal(2, len(results.LastEvaluatedKey))
+	assert.NotNil(results.Next())
+
+	// page 2
+	results, err = results.Next().Execute()
+	assert.NoError(err)
+	assert.Equal(8, len(results.Items))
+	assert.Nil(results.LastEvaluatedKey)
+	assert.Nil(results.Next())
+}
+
 func person(id int, name string) dynago.Document {
 	return dynago.Document{"Id": id, "Name": name, "IncVal": 1}
+}
+
+func post(uid int, dated int) dynago.Document {
+	return dynago.Document{"UserId": uid, "Dated": dated}
 }
