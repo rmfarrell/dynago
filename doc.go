@@ -25,7 +25,7 @@ Type Marshaling
 Dynago tries to marshal to/from Go types where possible:
 
  * Strings use golang string
- * Numbers can be input as int, int64,  float64 but always are returned as
+ * Numbers can be input as int, int64, float64, etc but always are returned as
    dynago.Number to not lose precision.
  * Maps can be either map[string]interface{} or dynago.Document
  * Opaque binary data can be put in []byte

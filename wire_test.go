@@ -39,6 +39,18 @@ func TestWireEncodeBasic(t *testing.T) {
 	check(wireNumber{"4.55"}, float64(4.55), `{"N":"4.55"}`)
 	check(wireNumberSet{[]string{"4", "5"}}, NumberSet{"4", "5"}, `{"NS":["4","5"]}`)
 
+	check(wireNumber{"4500"}, uint(4500), `{"N":"4500"}`)
+	check(wireNumber{"4500"}, uint64(4500), `{"N":"4500"}`)
+	check(wireNumber{"4500"}, uint32(4500), `{"N":"4500"}`)
+	check(wireNumber{"4500"}, uint16(4500), `{"N":"4500"}`)
+	check(wireNumber{"251"}, uint8(251), `{"N":"251"}`)
+
+	check(wireNumber{"123"}, int(123), `{"N":"123"}`)
+	check(wireNumber{"123"}, int64(123), `{"N":"123"}`)
+	check(wireNumber{"123"}, int32(123), `{"N":"123"}`)
+	check(wireNumber{"123"}, int16(123), `{"N":"123"}`)
+	check(wireNumber{"123"}, int8(123), `{"N":"123"}`)
+
 	// Lists (heterogeneous)
 	check(
 		wireList{[]interface{}{&wireNumber{"45"}, &wireString{"Hello"}, &wireNumber{"4.5"}, &wireBinary{[]byte("AB")}}},

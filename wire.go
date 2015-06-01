@@ -5,6 +5,7 @@ import (
 )
 
 func wireEncode(value interface{}) interface{} {
+	// This is somewhat optimized based on what we expect are the most common types.
 	switch v := value.(type) {
 	case string:
 		return &wireString{v}
@@ -40,6 +41,10 @@ func wireEncode(value interface{}) interface{} {
 		return &wireList{encList}
 	case map[string]interface{}:
 		return wireEncode(Document(v))
+	case int32, int16, int8:
+		return &wireNumber{strconv.FormatInt(anyInt(v), 10)}
+	case uint, uint64, uint32, uint16, uint8:
+		return &wireNumber{strconv.FormatUint(anyUint(v), 10)}
 	default:
 		panic(v)
 	}
@@ -122,4 +127,36 @@ func wireDecodeStringSet(val interface{}) interface{} {
 
 func wireDecodeList(val interface{}) interface{} {
 	return nil // TODO
+}
+
+func anyInt(input interface{}) int64 {
+	switch v := input.(type) {
+	case int:
+		return int64(v)
+	case int64:
+		return v
+	case int32:
+		return int64(v)
+	case int16:
+		return int64(v)
+	case int8:
+		return int64(v)
+	}
+	panic("Unknown int type")
+}
+
+func anyUint(input interface{}) uint64 {
+	switch v := input.(type) {
+	case uint:
+		return uint64(v)
+	case uint64:
+		return v
+	case uint32:
+		return uint64(v)
+	case uint16:
+		return uint64(v)
+	case uint8:
+		return uint64(v)
+	}
+	panic("unknown uint type")
 }
