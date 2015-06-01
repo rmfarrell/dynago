@@ -10,7 +10,7 @@ easier.
 Filter Chaining
 
 A key design concept is the use of chaining to build filters and conditions,
-similar to some ORM frameworks. This makes using sub-features like conditional
+similar to some ORM frameworks. This allows using sub-features like conditional
 puts, expression post-filtering, and so on to be clearer, because this means
 a conditional put is simply a PutItem with a condition expression tacked on.
 

@@ -28,3 +28,11 @@ const (
 )
 
 const dynamoTargetPrefix = "DynamoDB_20120810." // This is the Dynamo API version we support
+
+type DebugFlags uint
+
+const (
+	DebugRequests DebugFlags = 1 << iota
+	DebugResponses
+	DebugAuth
+)

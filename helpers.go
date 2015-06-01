@@ -75,3 +75,14 @@ func eaNameCopy(doc *map[string]string, extendBy int) {
 	}
 	*doc = names
 }
+
+/*
+Set the debug mode.
+
+This is a set of bit-flags you can use to set up how much debugging dynago uses:
+	dynago.Debug = dynago.DebugRequests | dynago.DebugResponses
+*/
+var Debug DebugFlags
+
+// Set the target of debug. Must be set for debug to be used.
+var DebugFunc func(format string, v ...interface{})

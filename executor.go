@@ -67,11 +67,17 @@ func (e *awsExecutor) makeRequest(target string, document interface{}) ([]byte, 
 	req.Header.Add("content-type", "application/x-amz-json-1.0")
 	req.Header.Set("Host", req.URL.Host)
 	e.aws.signRequest(req, buf)
+	if Debug&DebugRequests != 0 {
+		DebugFunc("Request:%#v\n\nRequest Body: %s\n\n", req, buf)
+	}
 	response, err := e.caller.Do(req)
 	if err != nil {
 		return nil, err
 	}
 	respBody, err := responseBytes(response)
+	if Debug&DebugResponses != 0 {
+		DebugFunc("Response: %#v\nBody:%s\n", response, respBody)
+	}
 	if response.StatusCode != http.StatusOK {
 		e := &Error{
 			Response:     response,
