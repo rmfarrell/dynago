@@ -1,7 +1,6 @@
 package dynago
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -16,24 +15,13 @@ func (e *expressionAttributes) paramHelper(key string, value interface{}) {
 }
 
 // Helper to build multi-params dictionary
-func (e *expressionAttributes) paramsHelper(params []interface{}) {
+func (e *expressionAttributes) paramsHelper(params []Params) {
 	if len(params) == 0 {
 		return
 	}
 	output := make([]Param, 0, len(params))
 	for _, p := range params {
-		switch value := p.(type) {
-		case Param:
-			output = append(output, value)
-		case *Param:
-			output = append(output, *value)
-		case Document:
-			for k, v := range value {
-				output = append(output, Param{k, v})
-			}
-		default:
-			panic(fmt.Errorf("Don't know what to do with value %#v", p))
-		}
+		output = append(output, p.AsParams()...)
 	}
 	e.assignParams(output)
 }

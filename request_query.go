@@ -50,21 +50,21 @@ func (q Query) ConsistentRead(strong bool) *Query {
 }
 
 // Set a post-filter expression for the results we scan.
-func (q Query) FilterExpression(expression string, params ...interface{}) *Query {
+func (q Query) FilterExpression(expression string, params ...Params) *Query {
 	q.req.paramsHelper(params)
 	q.req.FilterExpression = expression
 	return &q
 }
 
 // Set a condition expression on the key to narrow down what we scan
-func (q Query) KeyConditionExpression(expression string, params ...interface{}) *Query {
+func (q Query) KeyConditionExpression(expression string, params ...Params) *Query {
 	q.req.paramsHelper(params)
 	q.req.KeyConditionExpression = expression
 	return &q
 }
 
 // Set a Projection Expression for controlling which attributes are returned.
-func (q Query) ProjectionExpression(expression string, params ...interface{}) *Query {
+func (q Query) ProjectionExpression(expression string, params ...Params) *Query {
 	q.req.paramsHelper(params)
 	q.req.ProjectionExpression = expression
 	return &q
@@ -77,7 +77,7 @@ func (q Query) Param(key string, value interface{}) *Query {
 }
 
 // Set a param, a document of params, or multiple params
-func (q Query) Params(params ...interface{}) *Query {
+func (q Query) Params(params ...Params) *Query {
 	q.req.paramsHelper(params)
 	return &q
 }

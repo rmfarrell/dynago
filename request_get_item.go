@@ -39,7 +39,7 @@ func (p GetItem) Param(key string, value interface{}) *GetItem {
 	return &p
 }
 
-func (p GetItem) Params(params ...interface{}) *GetItem {
+func (p GetItem) Params(params ...Params) *GetItem {
 	p.req.paramsHelper(params)
 	return &p
 }

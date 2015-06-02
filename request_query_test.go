@@ -43,7 +43,7 @@ func TestQueryReuse(t *testing.T) {
 	check(q3, 2, 100)
 	check(q2, 2, 45) // Check we didn't clobber q2
 
-	q4 := q2.Param(":val7", 95).Param(":offset", 8)
+	q4 := q2.Params(Document{":val7": 95, ":offset": 8})
 	check(q4, 3, 8)
 	check(q2, 2, 45) // check clobbering again
 }

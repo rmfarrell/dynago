@@ -95,6 +95,14 @@ func (d Document) GetTime(key string) Time {
 	return Time(&t)
 }
 
+// Allow a document to be used to specify params
+func (d Document) AsParams() (params []Param) {
+	for key, val := range d {
+		params = append(params, Param{key, val})
+	}
+	return
+}
+
 // Helper to build a hash key.
 func HashKey(name string, value interface{}) Document {
 	return Document{name: value}
@@ -111,6 +119,31 @@ func HashRangeKey(hashName string, hashVal interface{}, rangeName string, rangeV
 type Param struct {
 	Key   string
 	Value interface{}
+}
+
+// Allows a solo Param to also satisfy the Params interface
+func (p Param) AsParams() []Param {
+	return []Param{p}
+}
+
+/*
+Anything which implements Params can be used as expression parameters for
+dynamodb expressions.
+
+DynamoDB item queries using expressions can be provided parameters in a number
+of handy ways:
+	.Param(":k1", v1).Param(":k2", v2)
+	-or-
+	.Params(Param{":k1", v1}, Param{":k2", v2})
+	-or-
+	.FilterExpression("...", Param{":k1", v1}, Param{":k2", v2})
+	-or-
+	.FilterExpression("...", Document{":k1": v1, ":k2": v2})
+Or any combination of Param, Document, or potentially other custom types which
+provide the Params interface.
+*/
+type Params interface {
+	AsParams() []Param
 }
 
 func isEmptyValue(v reflect.Value) bool {

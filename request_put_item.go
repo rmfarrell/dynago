@@ -28,8 +28,9 @@ type PutItem struct {
 }
 
 // Set a ConditionExpression to do a conditional PutItem.
-func (p PutItem) ConditionExpression(expression string) *PutItem {
+func (p PutItem) ConditionExpression(expression string, params ...Params) *PutItem {
 	p.req.ConditionExpression = expression
+	p.req.paramsHelper(params)
 	return &p
 }
 
@@ -39,7 +40,7 @@ func (p PutItem) Param(key string, value interface{}) *PutItem {
 	return &p
 }
 
-func (p PutItem) Params(params ...interface{}) *PutItem {
+func (p PutItem) Params(params ...Params) *PutItem {
 	p.req.paramsHelper(params)
 	return &p
 }

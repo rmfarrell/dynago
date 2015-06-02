@@ -53,7 +53,7 @@ func (u UpdateItem) Param(key string, value interface{}) *UpdateItem {
 }
 
 // Set multiple parameters at once.
-func (u UpdateItem) Params(params ...interface{}) *UpdateItem {
+func (u UpdateItem) Params(params ...Params) *UpdateItem {
 	u.req.paramsHelper(params)
 	return &u
 }
