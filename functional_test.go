@@ -63,7 +63,7 @@ func TestGet(t *testing.T) {
 	assert.Equal(dynago.Number("42"), response.Item["Id"])
 }
 
-func TestConditionalPut(t *testing.T) {
+func TestPutItemConditional(t *testing.T) {
 	assert, client := funcTest.setUp(t)
 	doc := person(45, "Joe")
 	doc["Count"] = 94
@@ -158,6 +158,23 @@ func TestDescribeTable(t *testing.T) {
 	assert.Equal("Posts", response.Table.TableName)
 	assert.Equal(2, len(response.Table.AttributeDefinitions))
 	assert.Equal(0, len(response.Table.GlobalSecondaryIndexes))
+}
+
+func TestPutItem(t *testing.T) {
+	assert, client := funcTest.setUp(t)
+	doc := dynago.Document{"UserId": 50, "Dated": 2, "Title": "abc"}
+	response, err := client.PutItem("Posts", doc).Execute()
+	assert.Nil(response)
+	assert.NoError(err)
+
+	// Now test return values
+	doc["Title"] = "def"
+	response, err = client.PutItem("Posts", doc).
+		ReturnValues(dynago.ReturnAllOld).
+		Execute()
+	assert.NoError(err)
+	assert.NotNil(response)
+	assert.Equal("abc", response.Attributes["Title"])
 }
 
 func TestQueryPagination(t *testing.T) {

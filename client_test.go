@@ -19,3 +19,14 @@ func TestQueryParams(t *testing.T) {
 	assert.Equal(1, len(q2.req.ExpressionAttributeNames))
 	assert.Equal("Name", q2.req.ExpressionAttributeNames["#name"])
 }
+
+func TestNewAwsClient(t *testing.T) {
+	assert := assert.New(t)
+	client := NewAwsClient("us-east-1", "abc", "def")
+	assert.IsType(&awsExecutor{}, client.executor)
+	executor := client.executor.(*awsExecutor)
+	assert.Equal("us-east-1", executor.aws.Region)
+	assert.Equal("https://dynamodb.us-east-1.amazonaws.com/", executor.endpoint)
+	assert.Equal("abc", executor.aws.AccessKey)
+	assert.Equal("def", executor.aws.SecretKey)
+}
