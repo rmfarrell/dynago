@@ -160,7 +160,7 @@ func TestDescribeTable(t *testing.T) {
 	assert.Equal(0, len(response.Table.GlobalSecondaryIndexes))
 }
 
-func TestPutItem(t *testing.T) {
+func TestPutItemReturnValues(t *testing.T) {
 	assert, client := funcTest.setUp(t)
 	doc := dynago.Document{"UserId": 50, "Dated": 2, "Title": "abc"}
 	response, err := client.PutItem("Posts", doc).Execute()
