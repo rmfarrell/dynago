@@ -201,10 +201,11 @@ func TestQueryPagination(t *testing.T) {
 	assert.Equal(2, len(results.LastEvaluatedKey))
 	assert.NotNil(results.Next())
 
-	// page 2
-	results, err = results.Next().Execute()
+	// page 2, also use ProjectionExpression
+	results, err = results.Next().ProjectionExpression("Dated").Execute()
 	assert.NoError(err)
 	assert.Equal(8, len(results.Items))
+	assert.Equal(1, len(results.Items[0]))
 	assert.Nil(results.LastEvaluatedKey)
 	assert.Nil(results.Next())
 }
