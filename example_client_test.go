@@ -81,8 +81,8 @@ func ExampleClient_PutItem(client *dynago.Client) {
 
 func ExampleClient_Query(client *dynago.Client) {
 	result, err := client.Query("table").
-		FilterExpression("Foo > :val").
-		Param(":val", 45).
+		KeyConditionExpression("Foo = :val AND begins_with(Title, :prefix)").
+		Param(":val", 45).Param(":prefix", "The adventures of").
 		Execute()
 
 	if err == nil {
@@ -93,7 +93,10 @@ func ExampleClient_Query(client *dynago.Client) {
 }
 
 func ExampleClient_Query_pagination(client *dynago.Client) {
-	query := client.Query("table").Limit(50)
+	query := client.Query("table").
+		KeyConditionExpression("Foo = :val").
+		Limit(50)
+
 	// Keep getting results in a loop until there are no more.
 	for query != nil {
 		result, err := query.Execute()

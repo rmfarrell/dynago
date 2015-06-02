@@ -14,7 +14,9 @@ similar to some ORM frameworks. This allows using sub-features like conditional
 puts, expression post-filtering, and so on to be clearer, because this means
 a conditional put is simply a PutItem with a condition expression tacked on.
 
-	query := client.Query("Table").Limit(40).Desc()
+	query := client.Query("Table").
+		KeyConditionExpression("Foo = :foo", dynago.Param{":foo", 42}).
+		Limit(40).Desc()
 	result, err := query.Execute()
 
 All the various item-based query actions are evaluated when you call the

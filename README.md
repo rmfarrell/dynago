@@ -28,6 +28,7 @@ Run a query:
 client := dynago.NewClient(endpoint, accessKey, secretKey)
 
 query := client.Query(table).
+	KeyConditionExpression("UserId = :uid", dynago.Param{":uid", 42}).
 	FilterExpression("NumViews > :views").
 	Param(":views", 50).
 	Desc()
