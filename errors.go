@@ -12,6 +12,8 @@ type Error struct {
 	AmazonRawType string         // Raw error type from amazon
 	Exception     string         // Exception from amazon
 	Message       string         // Raw message from amazon
+	Request       *http.Request  // If available, HTTP request
+	RequestBody   []byte         // If available, raw request body bytes
 	Response      *http.Response // If available, HTTP response
 	ResponseBody  []byte         // If available, raw response body bytes
 }
@@ -42,21 +44,29 @@ type inputError struct {
 	Message       string `json:"message"`
 }
 
+/*
+AmazonError is an enumeration of error categories that Dynago returns.
+
+There are many more actual DynamoDB errors, but many of them are redundant from
+the perspective of application logic; using these mapped-down errors is a handy
+way to implement the logic you want without having a really long set of switch
+statements.
+*/
 type AmazonError int
 
 const (
 	ErrorUnknown AmazonError = iota
 
-	ErrorConditionFailed        // When a conditional put/update fails due to condition not being met
+	ErrorConditionFailed        // Conditional put/update failed; condition not met
 	ErrorCollectionSizeExceeded // Item collection (local secondary index) too large
-	ErrorThroughputExceeded     // We exceeded our provisioned throughput for this table or shard
+	ErrorThroughputExceeded     // Exceeded provisioned throughput for table or shard
 	ErrorNotFound               // Resource referenced by key not found
 	ErrorInternalFailure        // Internal server error
 	ErrorAuth                   // Encapsulates various authorization errors
 	ErrorInvalidParameter       // Encapsulates many forms of invalid input errors
 	ErrorServiceUnavailable     // Amazon service unavailable
 	ErrorThrottling             // Amazon is throttling us, try later
-	ErrorResourceInUse          // Tried to create a table already created, delete a table in CREATING state, etc.
+	ErrorResourceInUse          // Tried to create existing table, delete a table in CREATING state, etc.
 )
 
 type amazonErrorConfig struct {

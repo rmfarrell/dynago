@@ -58,8 +58,7 @@ func (e *awsExecutor) makeRequest(target string, document interface{}) ([]byte, 
 	if err != nil {
 		return nil, err
 	}
-	body := bytes.NewBuffer(buf)
-	req, err := http.NewRequest("POST", e.endpoint, body)
+	req, err := http.NewRequest("POST", e.endpoint, bytes.NewBuffer(buf))
 	if err != nil {
 		return nil, err
 	}
@@ -80,6 +79,8 @@ func (e *awsExecutor) makeRequest(target string, document interface{}) ([]byte, 
 	}
 	if response.StatusCode != http.StatusOK {
 		e := &Error{
+			Request:      req,
+			RequestBody:  buf,
 			Response:     response,
 			ResponseBody: respBody,
 		}
