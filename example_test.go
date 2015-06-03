@@ -6,7 +6,6 @@ import (
 )
 
 var region, accessKey, secretKey, table string
-var client dynago.Client
 
 func Example() {
 	client := dynago.NewAwsClient(region, accessKey, secretKey)
@@ -25,20 +24,7 @@ func Example() {
 	}
 }
 
-func Example_atomicUpdateItem() {
-	key := dynago.HashKey("id", 12345)
-	result, err := client.UpdateItem("products", key).
-		ReturnValues(dynago.ReturnUpdatedNew).
-		UpdateExpression("SET SoldCount = SoldCount + :numSold").
-		Param(":numSold", 5).
-		Execute()
-	if err != nil {
-		// TODO error handling
-	}
-	fmt.Printf("We have now sold %d frobbers", result.Attributes["SoldCount"])
-}
-
-func Example_marshaling() {
+func Example_marshaling(client *dynago.Client) {
 	type MyStruct struct {
 		Id          int64
 		Name        string
