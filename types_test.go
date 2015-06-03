@@ -29,6 +29,13 @@ func TestNumberInt64ValReturnsTheValueAsAnInt(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestNumberUint64ValReturnsTheValueAsAnInt(t *testing.T) {
+	num := dynago.Number("123456789012")
+	intVal, err := num.Uint64Val()
+	assert.Equal(t, uint64(123456789012), intVal)
+	assert.Nil(t, err)
+}
+
 func TestNumberInt64ValReturnsAnErrorIfItCannotParseTheValue(t *testing.T) {
 	num := dynago.Number("nope")
 	intVal, err := num.Int64Val()

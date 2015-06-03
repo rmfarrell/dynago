@@ -27,6 +27,10 @@ func (n Number) Int64Val() (int64, error) {
 	return strconv.ParseInt(string(n), 10, 64)
 }
 
+func (n Number) Uint64Val() (uint64, error) {
+	return strconv.ParseUint(string(n), 10, 64)
+}
+
 func (n Number) FloatVal() (float64, error) {
 	return strconv.ParseFloat(string(n), 64)
 }
