@@ -157,6 +157,9 @@ func (e *MockExecutor) Query(query *Query) (*QueryResult, error) {
 		if result.Count == 0 {
 			result.Count = len(result.Items)
 		}
+		if result.ScannedCount == 0 {
+			result.ScannedCount = result.Count
+		}
 	}
 
 	return result, e.QueryError

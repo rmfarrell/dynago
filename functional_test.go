@@ -191,12 +191,18 @@ func TestQueryPagination(t *testing.T) {
 	// Paginate the posts
 	q := client.Query("Posts").
 		KeyConditionExpression("UserId = :uid", dynago.Param{":uid", 42}).
+		FilterExpression("Dated <> :d", dynago.Param{":d", 101}).
 		Limit(10)
 	results, err := q.Execute()
 	assert.NoError(err)
-	assert.Equal(10, len(results.Items))
+	assert.Equal(9, len(results.Items))
 	assert.Equal(dynago.Number("42"), results.Items[0]["UserId"])
 	assert.Equal(dynago.Number("100"), results.Items[0]["Dated"])
+
+	// Check that we skipped something.
+	assert.Equal(10, results.ScannedCount)
+	assert.Equal(9, results.Count)
+
 	assert.NotNil(results.LastEvaluatedKey)
 	assert.Equal(2, len(results.LastEvaluatedKey))
 	assert.NotNil(results.Next())

@@ -19,13 +19,6 @@ type queryRequest struct {
 	ExclusiveStartKey Document `json:",omitempty"`
 }
 
-type queryResponse struct {
-	//ConsumedCapacity *ConsumedCapacityResponse  // TODO
-	Count            int
-	Items            []Document
-	LastEvaluatedKey Document
-}
-
 func newQuery(client *Client, table string) *Query {
 	req := queryRequest{
 		TableName: table,
@@ -115,16 +108,10 @@ func (q *Query) Execute() (result *QueryResult, err error) {
 }
 
 func (e *awsExecutor) Query(q *Query) (result *QueryResult, err error) {
-	var response queryResponse
-	err = e.makeRequestUnmarshal("Query", &q.req, &response)
+	result = &QueryResult{query: q}
+	err = e.makeRequestUnmarshal("Query", &q.req, result)
 	if err != nil {
-		return
-	}
-	result = &QueryResult{
-		query:            q,
-		Items:            response.Items,
-		Count:            response.Count,
-		LastEvaluatedKey: response.LastEvaluatedKey,
+		result = nil
 	}
 	return
 }
@@ -132,9 +119,10 @@ func (e *awsExecutor) Query(q *Query) (result *QueryResult, err error) {
 // The result returned from a query.
 type QueryResult struct {
 	query            *Query
-	Items            []Document
-	Count            int      // The total number of items (for pagination)
-	LastEvaluatedKey Document // The offset key for the next page.
+	Items            []Document // All the items in the result
+	Count            int        // The total number of items in the result
+	ScannedCount     int        // How many items were scanned past to get the result
+	LastEvaluatedKey Document   // The offset key for the next page.
 }
 
 // Helper for getting a query which will get the next page of results.
