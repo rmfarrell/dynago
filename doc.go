@@ -34,6 +34,9 @@ Dynago tries to marshal to/from Go types where possible:
  * String sets, number sets, binary sets are supported using dynago.StringSet,
    dynago.NumberSet, dynago.BinarySet
  * Lists are supported using dynago.List
+ * time.Time is only accepted if it's a UTC time, and is marshaled to a dynamo
+   string in iso8601 compact format. It comes back as a string, an can be
+   unmarshaled back using GetTime on document.
 
 Query Parameters
 

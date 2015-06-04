@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -68,6 +69,13 @@ func TestWireEncodeBasic(t *testing.T) {
 	check(wireString{"Foo"}, "Foo", `{"S":"Foo"}`)
 	check(wireStringSet{[]string{"A", "B"}}, StringSet{"A", "B"}, `{"SS":["A","B"]}`)
 
+	// Times
+	time1 := time.Date(2014, 5, 5, 1, 2, 3, 0, time.UTC)
+	Eastern, err := time.LoadLocation("US/Eastern")
+	assert.NoError(err)
+	check(wireString{"2014-05-05T01:02:03Z"}, time1, `{"S":"2014-05-05T01:02:03Z"}`)
+	check(wireString{"2014-05-05T01:02:03Z"}, &time1, `{"S":"2014-05-05T01:02:03Z"}`)
+	assert.Panics(func() { wireEncode(time1.In(Eastern)) })
 }
 
 func TestWireEncodeErrors(t *testing.T) {

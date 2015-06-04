@@ -104,12 +104,17 @@ func TestDocumentGetStringSetPanic(t *testing.T) {
 func TestDocumentGetTimeReturnsTheTimeValueFromISO8601(t *testing.T) {
 	doc := dynago.Document{"time": "1990-04-16T00:00:00Z"}
 	val, _ := time.Parse("2006-01-02T15:04:05Z", "1990-04-16T00:00:00Z")
-	assert.Equal(t, dynago.Time(&val), doc.GetTime("time"))
+	assert.Equal(t, &val, doc.GetTime("time"))
 }
 
 func TestDocumentGetTimeReturnsNilWhenTheKeyDoesNotExist(t *testing.T) {
 	doc := dynago.Document{}
 	assert.Nil(t, doc.GetTime("time"))
+}
+
+func TestDocumentGetTimePanicsWhenFormatIsNotIso8601(t *testing.T) {
+	doc := dynago.Document{"time": "Foo"}
+	assert.Panics(t, func() { doc.GetTime("time") })
 }
 
 func TestDocumentMarshalJSONDoesNotIncludeEmptyValues(t *testing.T) {

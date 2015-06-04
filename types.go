@@ -17,8 +17,6 @@ type List []interface{}
 
 type Number string
 
-type Time *time.Time
-
 func (n Number) IntVal() (int, error) {
 	return strconv.Atoi(string(n))
 }
@@ -90,13 +88,23 @@ func (d Document) GetStringSet(key string) StringSet {
 	}
 }
 
-func (d Document) GetTime(key string) Time {
-	iso8601 := d.GetString(key)
-	t, err := time.ParseInLocation("2006-01-02T15:04:05Z", iso8601, time.UTC)
-	if err != nil {
-		return nil
+/*
+Helper to get a Time from a document.
+
+If the value is omitted from the DB, or an empty string, then the return
+is nil. If the value fails to parse as iso8601, then this method panics.
+*/
+func (d Document) GetTime(key string) (t *time.Time) {
+	val := d[key]
+	if val != nil {
+		s := val.(string)
+		parsed, err := time.ParseInLocation(iso8601compact, s, time.UTC)
+		if err != nil {
+			panic(err)
+		}
+		t = &parsed
 	}
-	return Time(&t)
+	return t
 }
 
 // Allow a document to be used to specify params

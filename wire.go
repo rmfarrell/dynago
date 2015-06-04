@@ -3,6 +3,7 @@ package dynago
 import (
 	"encoding/base64"
 	"strconv"
+	"time"
 )
 
 func wireEncode(value interface{}) interface{} {
@@ -46,9 +47,20 @@ func wireEncode(value interface{}) interface{} {
 		return &wireNumber{strconv.FormatInt(anyInt(v), 10)}
 	case uint, uint64, uint32, uint16, uint8:
 		return &wireNumber{strconv.FormatUint(anyUint(v), 10)}
+	case time.Time:
+		return wireEncodeTime(v)
+	case *time.Time:
+		return wireEncodeTime(*v)
 	default:
 		panic(v)
 	}
+}
+
+func wireEncodeTime(t time.Time) interface{} {
+	if t.Location() != time.UTC {
+		panic("Times must be provided as UTC")
+	}
+	return &wireString{t.Format(iso8601compact)}
 }
 
 type wireString struct {
