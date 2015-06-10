@@ -35,15 +35,17 @@ type UpdateItem struct {
 }
 
 // Set a condition expression for conditional update.
-func (u *UpdateItem) ConditionExpression(expression string) *UpdateItem {
+func (u UpdateItem) ConditionExpression(expression string, params ...Params) *UpdateItem {
+	u.req.paramsHelper(params)
 	u.req.ConditionExpression = expression
-	return u
+	return &u
 }
 
 // Set an update expression to update specific fields and values.
-func (u *UpdateItem) UpdateExpression(expression string) *UpdateItem {
+func (u UpdateItem) UpdateExpression(expression string, params ...Params) *UpdateItem {
+	u.req.paramsHelper(params)
 	u.req.UpdateExpression = expression
-	return u
+	return &u
 }
 
 // Quick-set a single parameter
@@ -59,9 +61,9 @@ func (u UpdateItem) Params(params ...Params) *UpdateItem {
 }
 
 // If set, then we will get return values of either updated or old fields (see ReturnValues const)
-func (u *UpdateItem) ReturnValues(returnValues ReturnValues) *UpdateItem {
+func (u UpdateItem) ReturnValues(returnValues ReturnValues) *UpdateItem {
 	u.req.ReturnValues = returnValues
-	return u
+	return &u
 }
 
 // Execute this UpdateItem and return the result.
