@@ -227,14 +227,7 @@ func TestPutItemReturnValues(t *testing.T) {
 
 func TestQueryPagination(t *testing.T) {
 	assert, client := funcTest.setUp(t)
-
-	// Add some posts
-	writer := client.BatchWrite()
-	for i := 100; i < 118; i++ {
-		writer = writer.Put("Posts", dynago.Document{"UserId": 42, "Dated": i})
-	}
-	_, err := writer.Execute()
-	assert.NoError(err)
+	assert.NoError(batchAddPosts(client, 42, 100, 118))
 
 	// Paginate the posts
 	q := client.Query("Posts").
@@ -264,10 +257,32 @@ func TestQueryPagination(t *testing.T) {
 	assert.Nil(results.Next())
 }
 
+func TestScanBasic(t *testing.T) {
+	assert, client := funcTest.setUp(t)
+	assert.NoError(batchAddPosts(client, 50, 100, 120))
+	scan := client.Scan("Posts").Limit(20)
+	result, err := scan.Execute()
+	assert.NoError(err)
+	assert.NotEqual(0, len(result.Items))
+	assert.NotNil(result.LastEvaluatedKey)
+	result2, err := scan.ExclusiveStartKey(result.LastEvaluatedKey).Execute()
+	assert.NotEqual(result.Items, result2.Items)
+}
+
 func person(id int, name string) dynago.Document {
 	return dynago.Document{"Id": id, "Name": name, "IncVal": 1}
 }
 
 func post(uid int, dated int) dynago.Document {
 	return dynago.Document{"UserId": uid, "Dated": dated}
+}
+
+func batchAddPosts(client *dynago.Client, userId, start, end int) error {
+	// Add some posts
+	writer := client.BatchWrite()
+	for i := start; i < end; i++ {
+		writer = writer.Put("Posts", dynago.Document{"UserId": userId, "Dated": i})
+	}
+	_, err := writer.Execute()
+	return err
 }

@@ -77,6 +77,13 @@ func (c *Client) PutItem(table string, item Document) *PutItem {
 }
 
 /*
+Compose a Scan on a dynamo table.
+*/
+func (c *Client) Scan(table string) *Scan {
+	return newScan(c, table)
+}
+
+/*
 Compose an UpdateItem on a dynamo table.
 */
 func (c *Client) UpdateItem(table string, key Document) *UpdateItem {

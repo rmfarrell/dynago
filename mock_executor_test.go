@@ -84,6 +84,31 @@ func TestMockExecutorQuery(t *testing.T) {
 	assert.Equal(executor.Calls[1], *executor.QueryCall)
 }
 
+func TestMockExecutorScan(t *testing.T) {
+	assert, client, executor := mockSetup(t)
+	scan := client.Scan("table5").
+		ExclusiveStartKey(dynago.HashKey("Id", 2)).
+		FilterExpression("Foo = :bar", dynago.Param{":bar", 10}).
+		ProjectionExpression("Foo, Bar, #baz", dynago.Param{"#baz", "Baz"}).
+		IndexName("index5")
+	scan.Execute()
+	assert.Equal(true, executor.ScanCalled)
+	assert.NotNil(executor.ScanCall)
+	assert.Equal("Scan", executor.ScanCall.Method)
+	assert.Equal("table5", executor.ScanCall.Table)
+	assert.Equal("Foo = :bar", executor.ScanCall.FilterExpression)
+	assert.Equal(dynago.Document{":bar": 10}, executor.ScanCall.ExpressionAttributeValues)
+	assert.Equal(map[string]string{"#baz": "Baz"}, executor.ScanCall.ExpressionAttributeNames)
+	assert.Equal("Foo, Bar, #baz", executor.ScanCall.ProjectionExpression)
+	assert.Equal("index5", executor.ScanCall.IndexName)
+	assert.Nil(executor.ScanCall.Segment)
+	scan.Segment(5, 10).Execute()
+	assert.Equal(2, len(executor.Calls))
+	assert.NotNil(executor.ScanCall.Segment)
+	assert.Equal(5, *executor.ScanCall.Segment)
+	assert.Equal(10, *executor.ScanCall.TotalSegments)
+}
+
 func TestMockExecutorUpdateItem(t *testing.T) {
 	assert, client, executor := mockSetup(t)
 

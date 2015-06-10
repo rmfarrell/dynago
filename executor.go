@@ -22,6 +22,7 @@ type Executor interface {
 	GetItem(*GetItem) (*GetItemResult, error)
 	PutItem(*PutItem) (*PutItemResult, error)
 	Query(*Query) (*QueryResult, error)
+	Scan(*Scan) (*ScanResult, error)
 	UpdateItem(*UpdateItem) (*UpdateItemResult, error)
 	SchemaExecutor() SchemaExecutor
 }

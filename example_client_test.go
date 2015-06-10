@@ -110,6 +110,22 @@ func ExampleClient_Query_pagination(client *dynago.Client) {
 	}
 }
 
+func ExampleClient_Scan_parallel(client *dynago.Client) {
+	numSegments := 10
+	baseScan := client.Scan("Table").Limit(1000)
+
+	// spin up numSegments goroutines each working on a table segment
+	for i := 0; i < numSegments; i++ {
+		go func(scan *dynago.Scan) {
+			for scan != nil {
+				result, _ := scan.Execute()
+				// do something with result.Items
+				scan = result.Next()
+			}
+		}(baseScan.Segment(i, numSegments))
+	}
+}
+
 func ExampleClient_UpdateItem(client *dynago.Client) {
 	_, err := client.UpdateItem("Person", dynago.HashKey("Id", 42)).
 		UpdateExpression("SET Name=:name").

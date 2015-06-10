@@ -54,6 +54,11 @@ type MockExecutor struct {
 	QueryError  error             // Specify the error from Query
 	QueryResult *QueryResult      // Specify the result from Query
 
+	ScanCalled bool
+	ScanCall   *MockExecutorCall
+	ScanResult *ScanResult
+	ScanError  error
+
 	UpdateItemCalled bool
 	UpdateItemCall   *MockExecutorCall
 	UpdateItemResult *UpdateItemResult
@@ -77,13 +82,16 @@ type MockExecutorCall struct {
 	ReturnValues        ReturnValues
 	ConsistentRead      bool
 
-	// Query only
+	// Query and Scan
 	IndexName              string
 	KeyConditionExpression string
 	FilterExpression       string
+	ProjectionExpression   string
 	Ascending              bool
 	Limit                  uint
 	ExclusiveStartKey      Document
+	Segment                *int
+	TotalSegments          *int
 
 	BatchWrites BatchWriteTableMap
 }
@@ -127,29 +135,34 @@ func (e *MockExecutor) PutItem(putItem *PutItem) (*PutItemResult, error) {
 	return e.PutItemResult, e.PutItemError
 }
 
-func (e *MockExecutor) Query(query *Query) (*QueryResult, error) {
-	e.QueryCalled = true
+func callFromQueryReq(req queryRequest) MockExecutorCall {
 	ascending, consistent := true, false
-	if query.req.ScanIndexForward != nil {
-		ascending = *query.req.ScanIndexForward
+	if req.ScanIndexForward != nil {
+		ascending = *req.ScanIndexForward
 	}
-	if query.req.ConsistentRead != nil {
-		consistent = *query.req.ConsistentRead
+	if req.ConsistentRead != nil {
+		consistent = *req.ConsistentRead
 	}
 
-	e.addCall(&e.QueryCall, MockExecutorCall{
+	return MockExecutorCall{
 		Method:                    "Query",
-		Table:                     query.req.TableName,
-		IndexName:                 query.req.IndexName,
-		KeyConditionExpression:    query.req.KeyConditionExpression,
-		FilterExpression:          query.req.FilterExpression,
-		ExpressionAttributeNames:  query.req.ExpressionAttributeNames,
-		ExpressionAttributeValues: query.req.ExpressionAttributeValues,
+		Table:                     req.TableName,
+		IndexName:                 req.IndexName,
+		KeyConditionExpression:    req.KeyConditionExpression,
+		FilterExpression:          req.FilterExpression,
+		ExpressionAttributeNames:  req.ExpressionAttributeNames,
+		ExpressionAttributeValues: req.ExpressionAttributeValues,
+		ProjectionExpression:      req.ProjectionExpression,
 		Ascending:                 ascending,
 		ConsistentRead:            consistent,
-		Limit:                     query.req.Limit,
-		ExclusiveStartKey:         query.req.ExclusiveStartKey,
-	})
+		Limit:                     req.Limit,
+		ExclusiveStartKey:         req.ExclusiveStartKey,
+	}
+}
+
+func (e *MockExecutor) Query(query *Query) (*QueryResult, error) {
+	e.QueryCalled = true
+	e.addCall(&e.QueryCall, callFromQueryReq(query.req))
 
 	result := e.QueryResult
 	if result != nil {
@@ -163,6 +176,16 @@ func (e *MockExecutor) Query(query *Query) (*QueryResult, error) {
 	}
 
 	return result, e.QueryError
+}
+
+func (e *MockExecutor) Scan(scan *Scan) (*ScanResult, error) {
+	e.ScanCalled = true
+	call := callFromQueryReq(scan.req.queryRequest)
+	call.Method = "Scan"
+	call.Segment = scan.req.Segment
+	call.TotalSegments = scan.req.TotalSegments
+	e.addCall(&e.ScanCall, call)
+	return e.ScanResult, e.ScanError
 }
 
 func (e *MockExecutor) UpdateItem(update *UpdateItem) (*UpdateItemResult, error) {
