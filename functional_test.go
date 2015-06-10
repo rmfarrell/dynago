@@ -34,12 +34,13 @@ func (f *functional) setUp(t *testing.T) (*assert.Assertions, *dynago.Client) {
 var funcTest functional
 
 func makeTables(t *testing.T, client *dynago.Client) {
+	complexIndexed := complexIndexedSchema()
 	hashTable := schema.NewCreateRequest("Person").HashKey("Id", schema.Number)
 	hashRange := schema.NewCreateRequest("Posts").
 		HashKey("UserId", schema.Number).
 		RangeKey("Dated", schema.Number)
 
-	tables := []*schema.CreateRequest{hashTable, hashRange}
+	tables := []*schema.CreateRequest{hashTable, hashRange, complexIndexed}
 	for _, table := range tables {
 		_, err := client.CreateTable(table)
 		if err != nil {
@@ -48,6 +49,43 @@ func makeTables(t *testing.T, client *dynago.Client) {
 			}
 			panic(err)
 		}
+	}
+}
+
+func complexIndexedSchema() *schema.CreateRequest {
+	return &schema.CreateRequest{
+		TableName: "Indexed",
+		AttributeDefinitions: []schema.AttributeDefinition{
+			{"Id", schema.String},
+			{"UserId", schema.String},
+			{"Dated", schema.Number},
+		},
+		KeySchema: []schema.KeySchema{
+			{"UserId", schema.HashKey},
+			{"Id", schema.RangeKey},
+		},
+		ProvisionedThroughput: schema.ProvisionedThroughput{1, 1},
+		GlobalSecondaryIndexes: []schema.SecondaryIndex{
+			{
+				IndexName:  "index1",
+				Projection: schema.Projection{schema.ProjectAll, nil},
+				KeySchema: []schema.KeySchema{
+					{"Id", schema.HashKey},
+				},
+				ProvisionedThroughput: schema.ProvisionedThroughput{1, 1},
+			},
+		},
+		LocalSecondaryIndexes: []schema.SecondaryIndex{
+			{
+				IndexName:  "index2",
+				Projection: schema.Projection{schema.ProjectInclude, []string{"Foo", "Bar"}},
+				KeySchema: []schema.KeySchema{
+					{"UserId", schema.HashKey},
+					{"Dated", schema.RangeKey},
+				},
+				ProvisionedThroughput: schema.ProvisionedThroughput{1, 1},
+			},
+		},
 	}
 }
 
@@ -158,6 +196,16 @@ func TestDescribeTable(t *testing.T) {
 	assert.Equal("Posts", response.Table.TableName)
 	assert.Equal(2, len(response.Table.AttributeDefinitions))
 	assert.Equal(0, len(response.Table.GlobalSecondaryIndexes))
+
+	response, err = client.DescribeTable("Indexed")
+	assert.NoError(err)
+	assert.Equal(1, len(response.Table.GlobalSecondaryIndexes))
+	assert.Equal(1, len(response.Table.LocalSecondaryIndexes))
+	lsi := response.Table.LocalSecondaryIndexes[0]
+	assert.Equal("index2", lsi.IndexName)
+	assert.Equal(2, len(lsi.KeySchema))
+	assert.Equal(schema.ProjectInclude, lsi.Projection.ProjectionType)
+	assert.Equal([]string{"Foo", "Bar"}, lsi.Projection.NonKeyAttributes)
 }
 
 func TestPutItemReturnValues(t *testing.T) {

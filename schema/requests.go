@@ -1,11 +1,12 @@
 package schema
 
 type CreateRequest struct {
-	TableName             string
-	AttributeDefinitions  []AttributeDefinition
-	KeySchema             []KeySchema
-	ProvisionedThroughput ProvisionedThroughput
-	// TODO local and global secondary indexes
+	TableName              string
+	AttributeDefinitions   []AttributeDefinition
+	KeySchema              []KeySchema
+	ProvisionedThroughput  ProvisionedThroughput
+	GlobalSecondaryIndexes []SecondaryIndex
+	LocalSecondaryIndexes  []SecondaryIndex
 }
 
 func NewCreateRequest(table string) *CreateRequest {

@@ -15,6 +15,14 @@ const (
 	Binary AttributeType = "B"
 )
 
+type ProjectionType string
+
+const (
+	ProjectKeysOnly ProjectionType = "KEYS_ONLY"
+	ProjectInclude  ProjectionType = "INCLUDE"
+	ProjectAll      ProjectionType = "ALL"
+)
+
 type TableDescription struct {
 	TableName        string
 	TableSizeBytes   uint64
@@ -23,6 +31,7 @@ type TableDescription struct {
 
 	AttributeDefinitions   []AttributeDefinition
 	GlobalSecondaryIndexes []SecondaryIndexResponse
+	LocalSecondaryIndexes  []SecondaryIndexResponse
 }
 
 type ProvisionedThroughput struct {
@@ -43,8 +52,13 @@ type KeySchema struct {
 type SecondaryIndex struct {
 	IndexName             string
 	KeySchema             []KeySchema
-	Projection            interface{} // TODO
+	Projection            Projection
 	ProvisionedThroughput ProvisionedThroughput
+}
+
+type Projection struct {
+	ProjectionType   ProjectionType
+	NonKeyAttributes []string `json:",omitempty"`
 }
 
 // Secondary indexes as described in table descriptions
