@@ -115,6 +115,20 @@ func (d Document) AsParams() (params []Param) {
 	return
 }
 
+func (d Document) GetBool(key string) bool {
+	if d[key] != nil {
+		number := d[key].(Number)
+
+		if res, _ := number.IntVal(); res == 1 {
+			return true
+		} else {
+			return false
+		}
+	} else {
+		return false
+	}
+}
+
 // Helper to build a hash key.
 func HashKey(name string, value interface{}) Document {
 	return Document{name: value}
