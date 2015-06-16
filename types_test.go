@@ -127,7 +127,7 @@ func TestDocumentMarshalJSONDoesNotIncludeEmptyValues(t *testing.T) {
 }
 
 func TestDocumentGetBoolReturnsTheUnderlyingValueAsABool(t *testing.T) {
-	doc := dynago.Document{"val": 1}
+	doc := dynago.Document{"val": dynago.Number("1")}
 	assert.Equal(t, true, doc.GetBool("val"))
 }
 
