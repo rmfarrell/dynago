@@ -115,14 +115,30 @@ func (d Document) AsParams() (params []Param) {
 	return
 }
 
-func (d Document) GetBool(key string) bool {
-	if d[key] != nil {
-		number := d[key].(Number)
+/*
+Gets the value at the key as a boolean.
 
-		if res, _ := number.IntVal(); res == 1 {
-			return true
-		} else {
-			return false
+If the value does not exist in this Document, returns false.
+If the value is the nil interface, also returns false.
+If the value is a bool, returns the value of the bool.
+If the value is a Number, returns true if value is non-zero.
+For any other values, panics
+*/
+func (d Document) GetBool(key string) bool {
+	if v := d[key]; v != nil {
+		switch val := v.(type) {
+		case bool:
+			return val
+		case Number:
+			if res, err := val.IntVal(); err != nil {
+				panic(err)
+			} else if res == 0 {
+				return false
+			} else {
+				return true
+			}
+		default:
+			panic(v)
 		}
 	} else {
 		return false

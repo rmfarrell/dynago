@@ -126,12 +126,23 @@ func TestDocumentMarshalJSONDoesNotIncludeEmptyValues(t *testing.T) {
 	assert.Contains(t, string(jsonDoc), `"key2":{"N":"9"}`)
 }
 
-func TestDocumentGetBoolReturnsTheUnderlyingValueAsABool(t *testing.T) {
+func TestDocumentGetBool(t *testing.T) {
 	doc := dynago.Document{"val": dynago.Number("1")}
 	assert.Equal(t, true, doc.GetBool("val"))
-}
 
-func TestDocumentGetBoolReturnsFalseWhenTheKeyIsNotPresent(t *testing.T) {
-	doc := dynago.Document{}
-	assert.Equal(t, false, doc.GetBool("name"))
+	doc = dynago.Document{}
+	assert.Equal(t, false, doc.GetBool("val"))
+
+	doc = dynago.Document{"val": nil}
+	assert.Equal(t, false, doc.GetBool("val"))
+
+	doc = dynago.Document{"val": dynago.Number("b")}
+	assert.Panics(t, func() {
+		doc.GetBool("val")
+	})
+
+	doc = dynago.Document{"val": "hello"}
+	assert.Panics(t, func() {
+		doc.GetBool("val")
+	})
 }
