@@ -57,6 +57,24 @@ func TestNumberFloatValReturnsAnErrorIfItCannotParseTheValue(t *testing.T) {
 	assert.Error(t, err)
 }
 
+func TestListAsDocumentListReturnsAListOfDocuments(t *testing.T) {
+	list := dynago.List{dynago.Document{"id": 1}}
+	docList, _ := list.AsDocumentList()
+	assert.Equal(t, dynago.Document{"id": 1}, docList[0])
+}
+
+func TestListAsDocumentListReturnsAnErrorIfThereAreNonDocuments(t *testing.T) {
+	list := dynago.List{dynago.Document{"real": "item"}, "imnotadocument"}
+	_, err := list.AsDocumentList()
+	assert.Equal(t, err.Error(), "item at index 1 was not a Document")
+}
+
+func TestListAsDocumentListReturnsTheDocumentsUpToTheFirstNonDocument(t *testing.T) {
+	list := dynago.List{dynago.Document{"real": "item"}, "imnotadocument", dynago.Document{"i won't": "show up"}}
+	docList, _ := list.AsDocumentList()
+	assert.Equal(t, []dynago.Document{dynago.Document{"real": "item"}}, docList)
+}
+
 func TestDocumentGetStringReturnsTheUnderlyingValueAsAString(t *testing.T) {
 	doc := dynago.Document{"name": "Timmy Testerson"}
 	assert.Equal(t, "Timmy Testerson", doc.GetString("name"))
