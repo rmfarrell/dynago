@@ -146,3 +146,10 @@ func TestDocumentGetBool(t *testing.T) {
 		doc.GetBool("val")
 	})
 }
+
+func TestDocumentGetList(t *testing.T) {
+	doc := dynago.Document{"vals": dynago.List{"val1", "val2"}, "wrongtype": 4}
+	assert.Equal(t, dynago.List{"val1", "val2"}, doc.GetList("vals"))
+	assert.Equal(t, dynago.List(nil), doc.GetList("notarealkey"))
+	assert.Panics(t, func() { doc.GetList("wrongtype") })
+}

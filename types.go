@@ -63,6 +63,20 @@ func (d *Document) UnmarshalJSON(buf []byte) error {
 	return nil
 }
 
+/*
+Helper to get a key from document as a List.
+
+If value at key is nil, returns a nil list.
+If value at key is not a List, will panic.
+*/
+func (d Document) GetList(key string) List {
+	if d[key] != nil {
+		return d[key].(List)
+	} else {
+		return nil
+	}
+}
+
 // Helper to get a string from a document.
 func (d Document) GetString(key string) string {
 	if d[key] != nil {
