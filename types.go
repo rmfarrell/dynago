@@ -2,6 +2,7 @@ package dynago
 
 import (
 	"encoding/json"
+	"fmt"
 	"reflect"
 	"strconv"
 	"time"
@@ -14,6 +15,18 @@ type NumberSet []string
 type BinarySet [][]byte
 
 type List []interface{}
+
+func (l List) AsDocumentList() ([]Document, error) {
+	docs := make([]Document, len(l))
+	for i, listItem := range l {
+		if doc, ok := listItem.(Document); !ok {
+			return docs[:i], fmt.Errorf("item at index %d was not a Document", i)
+		} else {
+			docs[i] = doc
+		}
+	}
+	return docs, nil
+}
 
 type Number string
 
