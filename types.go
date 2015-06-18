@@ -16,6 +16,17 @@ type BinarySet [][]byte
 
 type List []interface{}
 
+/*
+Return a copy of this list with all elements coerced as Documents.
+
+It's very common to use lists in dynago where all elements in the list are
+a Document. For that reason, this method is provided as a convenience to
+get back your list as a list of documents.
+
+If any element in the List is not a document, this will error.
+As a convenience, even when it errors, a slice containing any elements
+preceding the one which errored as documents will be given.
+*/
 func (l List) AsDocumentList() ([]Document, error) {
 	docs := make([]Document, len(l))
 	for i, listItem := range l {
