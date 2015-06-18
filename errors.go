@@ -85,6 +85,7 @@ var AmazonErrors = []amazonErrorConfig{
 	{"InvalidParameterCombination", 400, ErrorInvalidParameter},
 	{"InvalidParameterValue", 400, ErrorInvalidParameter},
 	{"InvalidQueryParameter", 400, ErrorInvalidParameter},
+	{"InvalidSignatureException", 400, ErrorAuth},
 	{"ItemCollectionSizeLimitExceededException", 400, ErrorCollectionSizeExceeded},
 	{"MalformedQueryString", 404, ErrorInvalidParameter},
 	{"MissingAction", 400, ErrorInvalidParameter},
