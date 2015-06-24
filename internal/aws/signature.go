@@ -1,4 +1,11 @@
-package dynago
+/*
+Provide AWS signature and other AWS-specific auth functions.
+
+This package is internalized because we don't want to have the interface
+of methodology such as request signing to have to be solidified
+to external users of dynago yet, and so we can iterate rapidly on this.
+*/
+package aws
 
 import (
 	"bytes"
@@ -23,14 +30,14 @@ This is required for all aws requests to ensure:
 
 const algorithm = "AWS4-HMAC-SHA256"
 
-type awsInfo struct {
+type AwsInfo struct {
 	AccessKey string
 	SecretKey string
 	Region    string
 	Service   string
 }
 
-func (info *awsInfo) signRequest(request *http.Request, bodyBytes []byte) {
+func (info *AwsInfo) SignRequest(request *http.Request, bodyBytes []byte) {
 	now := time.Now().UTC()
 	isoDateSmash := now.Format("20060102T150405Z")
 	request.Header.Add("x-amz-date", isoDateSmash)
@@ -81,7 +88,7 @@ func canonicalHeaders(buf *bytes.Buffer, headers http.Header) string {
 	return signedHeaders
 }
 
-func signingKey(now time.Time, info *awsInfo) []byte {
+func signingKey(now time.Time, info *AwsInfo) []byte {
 	kSecret := "AWS4" + info.SecretKey
 	kDate := hmacShort([]byte(kSecret), []byte(now.Format("20060102")))
 	kRegion := hmacShort(kDate, []byte(info.Region))

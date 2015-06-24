@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/underarmour/dynago/internal/aws"
 	"github.com/underarmour/dynago/schema"
 )
 
@@ -37,14 +38,14 @@ type SchemaExecutor interface {
 type awsExecutor struct {
 	endpoint string
 	caller   http.Client
-	aws      awsInfo
+	aws      aws.AwsInfo
 }
 
 // Create an AWS executor with a specified endpoint and AWS parameters.
 func NewAwsExecutor(endpoint, region, accessKey, secretKey string) Executor {
 	return &awsExecutor{
 		endpoint: endpoint,
-		aws: awsInfo{
+		aws: aws.AwsInfo{
 			Region:    region,
 			AccessKey: accessKey,
 			SecretKey: secretKey,
@@ -66,7 +67,7 @@ func (e *awsExecutor) makeRequest(target string, document interface{}) ([]byte, 
 	req.Header.Add("x-amz-target", dynamoTargetPrefix+target)
 	req.Header.Add("content-type", "application/x-amz-json-1.0")
 	req.Header.Set("Host", req.URL.Host)
-	e.aws.signRequest(req, buf)
+	e.aws.SignRequest(req, buf)
 	if Debug&DebugRequests != 0 {
 		DebugFunc("Request:%#v\n\nRequest Body: %s\n\n", req, buf)
 	}
