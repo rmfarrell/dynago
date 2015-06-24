@@ -109,14 +109,15 @@ func (e *awsExecutor) SchemaExecutor() SchemaExecutor {
 	return e
 }
 
-func responseBytes(response *http.Response) (buf []byte, err error) {
+func responseBytes(response *http.Response) (output []byte, err error) {
 	if response.ContentLength > 0 {
-		buf = make([]byte, response.ContentLength)
-		_, err = response.Body.Read(buf)
-		if err != nil && err != io.EOF {
-			return nil, err
+		var buffer bytes.Buffer
+		buffer.Grow(int(response.ContentLength)) // avoid a ton of allocations
+		_, err = io.Copy(&buffer, response.Body)
+		if err == nil {
+			output = buffer.Bytes()
+			err = response.Body.Close()
 		}
-		err = response.Body.Close()
 	}
 	return
 }
