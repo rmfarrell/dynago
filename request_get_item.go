@@ -45,8 +45,8 @@ func (p GetItem) Params(params ...Params) *GetItem {
 }
 
 // Set up this get to be a strongly consistent read.
-func (p GetItem) ConsistentRead() *GetItem {
-	p.req.ConsistentRead = true
+func (p GetItem) ConsistentRead(strong bool) *GetItem {
+	p.req.ConsistentRead = strong
 	return &p
 }
 

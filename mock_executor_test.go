@@ -33,7 +33,7 @@ func TestMockExecutorBatchWriteItem(t *testing.T) {
 
 func TestMockExecutorGetItem(t *testing.T) {
 	assert, client, executor := mockSetup(t)
-	client.GetItem("table1", dynago.HashKey("Id", 5)).ConsistentRead().Execute()
+	client.GetItem("table1", dynago.HashKey("Id", 5)).ConsistentRead(true).Execute()
 	assert.Equal(true, executor.GetItemCalled)
 	assert.Equal("GetItem", executor.GetItemCall.Method)
 	assert.Equal("table1", executor.GetItemCall.Table)
