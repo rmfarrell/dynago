@@ -64,7 +64,7 @@ func (e *awsExecutor) makeRequest(target string, document interface{}) ([]byte, 
 	if err != nil {
 		return nil, err
 	}
-	return e.requester.MakeRequest(target, buf)
+	return e.Requester.MakeRequest(target, buf)
 }
 
 func (e *awsExecutor) makeRequestUnmarshal(method string, document interface{}, dest interface{}) (err error) {

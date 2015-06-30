@@ -27,8 +27,6 @@ const (
 	ReturnUpdatedNew ReturnValues = "UPDATED_NEW"
 )
 
-const dynamoTargetPrefix = "DynamoDB_20120810." // This is the Dynamo API version we support
-
 type DebugFlags uint
 
 const (
