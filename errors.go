@@ -1,6 +1,7 @@
 package dynago
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -37,6 +38,22 @@ func (e *Error) parse(input *inputError) {
 			e.Type = conf.mappedError
 		}
 	}
+}
+
+func buildError(req *http.Request, body []byte, response *http.Response, respBody []byte) error {
+	e := &Error{
+		Request:      req,
+		RequestBody:  body,
+		Response:     response,
+		ResponseBody: respBody,
+	}
+	dest := &inputError{}
+	if err := json.Unmarshal(respBody, dest); err == nil {
+		e.parse(dest)
+	} else {
+		e.Message = err.Error()
+	}
+	return e
 }
 
 type inputError struct {

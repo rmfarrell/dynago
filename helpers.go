@@ -74,3 +74,9 @@ var Debug DebugFlags
 
 // Set the target of debug. Must be set for debug to be used.
 var DebugFunc func(format string, v ...interface{})
+
+// Convenience method to check if a value has a flag:
+//    Debug.HasFlags(DebugRequests)
+func (v DebugFlags) HasFlag(flag DebugFlags) bool {
+	return (v & flag) != 0
+}

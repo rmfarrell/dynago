@@ -1,10 +1,7 @@
 package dynago
 
 import (
-	"bytes"
 	"encoding/json"
-	"io"
-	"net/http"
 
 	"github.com/underarmour/dynago/internal/aws"
 	"github.com/underarmour/dynago/schema"
@@ -35,66 +32,39 @@ type SchemaExecutor interface {
 	ListTables(*ListTables) (*schema.ListResponse, error)
 }
 
+type AwsRequester interface {
+	MakeRequest(target string, body []byte) ([]byte, error)
+}
+
 type awsExecutor struct {
-	endpoint string
-	caller   http.Client
-	aws      aws.AwsInfo
+	Requester AwsRequester
 }
 
 // Create an AWS executor with a specified endpoint and AWS parameters.
 func NewAwsExecutor(endpoint, region, accessKey, secretKey string) Executor {
-	return &awsExecutor{
-		endpoint: endpoint,
-		aws: aws.AwsInfo{
-			Region:    region,
-			AccessKey: accessKey,
-			SecretKey: secretKey,
-			Service:   "dynamodb",
-		},
+	signer := aws.AwsInfo{
+		Region:    region,
+		AccessKey: accessKey,
+		SecretKey: secretKey,
+		Service:   "dynamodb",
 	}
+	requester := &aws.RequestMaker{
+		Endpoint:       endpoint,
+		Signer:         &signer,
+		BuildError:     buildError,
+		DebugRequests:  Debug.HasFlag(DebugRequests),
+		DebugResponses: Debug.HasFlag(DebugResponses),
+		DebugFunc:      DebugFunc,
+	}
+	return &awsExecutor{requester}
 }
 
 func (e *awsExecutor) makeRequest(target string, document interface{}) ([]byte, error) {
 	buf, err := json.Marshal(document)
-	// log.Printf("Request Body: \n%s\n\n", buf)
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequest("POST", e.endpoint, bytes.NewBuffer(buf))
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Add("x-amz-target", dynamoTargetPrefix+target)
-	req.Header.Add("content-type", "application/x-amz-json-1.0")
-	req.Header.Set("Host", req.URL.Host)
-	e.aws.SignRequest(req, buf)
-	if Debug&DebugRequests != 0 {
-		DebugFunc("Request:%#v\n\nRequest Body: %s\n\n", req, buf)
-	}
-	response, err := e.caller.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	respBody, err := responseBytes(response)
-	if Debug&DebugResponses != 0 {
-		DebugFunc("Response: %#v\nBody:%s\n", response, respBody)
-	}
-	if response.StatusCode != http.StatusOK {
-		e := &Error{
-			Request:      req,
-			RequestBody:  buf,
-			Response:     response,
-			ResponseBody: respBody,
-		}
-		dest := &inputError{}
-		if err = json.Unmarshal(respBody, dest); err == nil {
-			e.parse(dest)
-		} else {
-			e.Message = err.Error()
-		}
-		err = e
-	}
-	return respBody, err
+	return e.requester.MakeRequest(target, buf)
 }
 
 func (e *awsExecutor) makeRequestUnmarshal(method string, document interface{}, dest interface{}) (err error) {
@@ -108,17 +78,4 @@ func (e *awsExecutor) makeRequestUnmarshal(method string, document interface{}, 
 
 func (e *awsExecutor) SchemaExecutor() SchemaExecutor {
 	return e
-}
-
-func responseBytes(response *http.Response) (output []byte, err error) {
-	if response.ContentLength > 0 {
-		var buffer bytes.Buffer
-		buffer.Grow(int(response.ContentLength)) // avoid a ton of allocations
-		_, err = io.Copy(&buffer, response.Body)
-		if err == nil {
-			output = buffer.Bytes()
-			err = response.Body.Close()
-		}
-	}
-	return
 }

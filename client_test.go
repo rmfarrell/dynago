@@ -3,6 +3,8 @@ package dynago
 import (
 	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/underarmour/dynago/internal/aws"
 )
 
 func setUp(t *testing.T) (*assert.Assertions, *Client, *MockExecutor) {
@@ -26,8 +28,11 @@ func TestNewAwsClient(t *testing.T) {
 	client := NewAwsClient("us-east-1", "abc", "def")
 	assert.IsType(&awsExecutor{}, client.executor)
 	executor := client.executor.(*awsExecutor)
-	assert.Equal("us-east-1", executor.aws.Region)
-	assert.Equal("https://dynamodb.us-east-1.amazonaws.com/", executor.endpoint)
-	assert.Equal("abc", executor.aws.AccessKey)
-	assert.Equal("def", executor.aws.SecretKey)
+	requester := executor.requester.(*aws.RequestMaker)
+	assert.Equal("https://dynamodb.us-east-1.amazonaws.com/", requester.Endpoint)
+
+	signer := requester.Signer.(*aws.AwsInfo)
+	assert.Equal("us-east-1", signer.Region)
+	assert.Equal("abc", signer.AccessKey)
+	assert.Equal("def", signer.SecretKey)
 }
