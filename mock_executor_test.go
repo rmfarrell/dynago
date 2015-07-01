@@ -31,6 +31,24 @@ func TestMockExecutorBatchWriteItem(t *testing.T) {
 	assert.Equal(executor.Calls[0], *executor.BatchWriteItemCall)
 }
 
+func TestMockExecutorDeleteItem(t *testing.T) {
+	assert, client, executor := mockSetup(t)
+	client.DeleteItem("table1", dynago.HashKey("Id", 51)).
+		ConditionExpression("expr1", dynago.Param{":foo", 4}, dynago.Param{"#f", "f"}).
+		ReturnValues(dynago.ReturnAllOld).
+		Execute()
+	assert.Equal(true, executor.DeleteItemCalled)
+	assert.Equal(executor.Calls[0], *executor.DeleteItemCall)
+	call := executor.DeleteItemCall
+	assert.Equal("DeleteItem", call.Method)
+	assert.Equal(dynago.HashKey("Id", 51), call.Key)
+	assert.Equal("table1", call.Table)
+	assert.Equal("expr1", call.ConditionExpression)
+	assert.Equal(dynago.ReturnAllOld, call.ReturnValues)
+	assert.Equal(dynago.Document{":foo": 4}, call.ExpressionAttributeValues)
+	assert.Equal(map[string]string{"#f": "f"}, call.ExpressionAttributeNames)
+}
+
 func TestMockExecutorGetItem(t *testing.T) {
 	assert, client, executor := mockSetup(t)
 	client.GetItem("table1", dynago.HashKey("Id", 5)).ConsistentRead(true).Execute()

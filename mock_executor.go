@@ -35,6 +35,11 @@ to the application.
 type MockExecutor struct {
 	Calls []MockExecutorCall // All calls made through this executor
 
+	DeleteItemCalled bool
+	DeleteItemCall   *MockExecutorCall
+	DeleteItemResult *DeleteItemResult
+	DeleteItemError  error
+
 	PutItemCalled bool
 	PutItemCall   *MockExecutorCall
 	PutItemResult *PutItemResult
@@ -104,6 +109,20 @@ func (e *MockExecutor) BatchWriteItem(batchWrite *BatchWrite) (*BatchWriteResult
 	})
 
 	return &BatchWriteResult{}, e.BatchWriteItemError
+}
+
+func (e *MockExecutor) DeleteItem(deleteItem *DeleteItem) (*DeleteItemResult, error) {
+	e.DeleteItemCalled = true
+	e.addCall(&e.DeleteItemCall, MockExecutorCall{
+		Method:                    "DeleteItem",
+		Table:                     deleteItem.req.TableName,
+		Key:                       deleteItem.req.Key,
+		ConditionExpression:       deleteItem.req.ConditionExpression,
+		ExpressionAttributeNames:  deleteItem.req.ExpressionAttributeNames,
+		ExpressionAttributeValues: deleteItem.req.ExpressionAttributeValues,
+		ReturnValues:              deleteItem.req.ReturnValues,
+	})
+	return e.DeleteItemResult, e.DeleteItemError
 }
 
 func (e *MockExecutor) GetItem(getItem *GetItem) (*GetItemResult, error) {

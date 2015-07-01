@@ -4,6 +4,22 @@ import (
 	"testing"
 )
 
+func TestDeleteItem(t *testing.T) {
+	assert, client, mock := setUp(t)
+	di := client.DeleteItem("table", HashKey("Id", 50)).
+		ConditionExpression("Foo = :bar", Param{":bar", "baz"}).
+		ReturnValues(ReturnAllOld)
+	assert.Equal(Document{"Id": 50}, di.req.Key)
+	assert.Equal("Foo = :bar", di.req.ConditionExpression)
+	assert.Equal(Document{":bar": "baz"}, di.req.ExpressionAttributeValues)
+
+	attrib := Document{"Id": 50, "Foo": "Bar"}
+	mock.DeleteItemResult = &DeleteItemResult{attrib}
+	result, err := di.Execute()
+	assert.NoError(err)
+	assert.Equal(attrib, result.Attributes)
+}
+
 func TestGetItem(t *testing.T) {
 	assert, client, mock := setUp(t)
 	gi := client.GetItem("table", HashKey("Id", 10)).

@@ -17,6 +17,7 @@ Executor can also optionally return a SchemaExecutor to execute schema actions.
 */
 type Executor interface {
 	BatchWriteItem(*BatchWrite) (*BatchWriteResult, error)
+	DeleteItem(*DeleteItem) (*DeleteItemResult, error)
 	GetItem(*GetItem) (*GetItemResult, error)
 	PutItem(*PutItem) (*PutItemResult, error)
 	Query(*Query) (*QueryResult, error)

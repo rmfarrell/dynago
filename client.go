@@ -41,6 +41,13 @@ func (c *Client) BatchWrite() *BatchWrite {
 }
 
 /*
+Compose a DeleteItem on a dynamo key
+*/
+func (c *Client) DeleteItem(table string, key Document) *DeleteItem {
+	return newDeleteItem(c, table, key)
+}
+
+/*
 Compose a GetItem on a dynamo table.
 
 key should be a Document containing enough attributes to describe the primary key.

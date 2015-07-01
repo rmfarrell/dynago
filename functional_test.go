@@ -89,6 +89,28 @@ func complexIndexedSchema() *schema.CreateRequest {
 	}
 }
 
+func TestDeleteItem_functional(t *testing.T) {
+	assert, client := funcTest.setUp(t)
+	_, err := client.PutItem("Person", person(47, "Mary")).Execute()
+	assert.NoError(err)
+
+	key := dynago.HashKey("Id", 47)
+	di := client.DeleteItem("Person", key).
+		ConditionExpression("#n <> :name", dynago.Param{"#n", "Name"}, dynago.Param{":name", "Mary"}).
+		ReturnValues(dynago.ReturnAllOld)
+	result, err := di.Execute()
+	assert.Nil(result)
+	assert.NotNil(err)
+	e := err.(*dynago.Error)
+	assert.Equal(dynago.ErrorConditionFailed, e.Type)
+
+	result, err = di.ConditionExpression("#n <> :name", dynago.Param{":name", "Albert"}).Execute()
+	assert.NoError(err)
+	assert.NotNil(result)
+	doc := dynago.Document{"Name": "Mary", "IncVal": dynago.Number("1"), "Id": dynago.Number("47")}
+	assert.Equal(doc, result.Attributes)
+}
+
 func TestGet(t *testing.T) {
 	assert, client := funcTest.setUp(t)
 	putResp, err := client.PutItem("Person", person(42, "Bob")).Execute()
