@@ -109,6 +109,10 @@ func TestDeleteItem_functional(t *testing.T) {
 	assert.NotNil(result)
 	doc := dynago.Document{"Name": "Mary", "IncVal": dynago.Number("1"), "Id": dynago.Number("47")}
 	assert.Equal(doc, result.Attributes)
+
+	result, err = di.ReturnValues(dynago.ReturnNone).Execute()
+	assert.Nil(err)
+	assert.Nil(result)
 }
 
 func TestGet(t *testing.T) {
@@ -287,8 +291,15 @@ func TestScanBasic(t *testing.T) {
 	assert.NoError(err)
 	assert.NotEqual(0, len(result.Items))
 	assert.NotNil(result.LastEvaluatedKey)
+	assert.NotNil(result.Next())
 	result2, err := scan.ExclusiveStartKey(result.LastEvaluatedKey).Execute()
 	assert.NotEqual(result.Items, result2.Items)
+	assert.Nil(result2.Next())
+
+	// ensure Next method matches manual ExclusiveStartKey
+	result2a, err := result.Next().Execute()
+	assert.NoError(err)
+	assert.Equal(result2a.Items, result2.Items)
 }
 
 func person(id int, name string) dynago.Document {

@@ -8,6 +8,7 @@ import (
 )
 
 func mockSetup(t *testing.T) (*assert.Assertions, *dynago.Client, *dynago.MockExecutor) {
+	t.Parallel()
 	executor := &dynago.MockExecutor{}
 	return assert.New(t), dynago.NewClient(executor), executor
 }
@@ -95,11 +96,19 @@ func TestMockExecutorQuery(t *testing.T) {
 	assert.Equal("Foo > :param", executor.QueryCall.FilterExpression)
 	assert.Equal(executor.Calls[0], *executor.QueryCall)
 
-	client.Query("table3").Desc().Execute()
+	doc1 := dynago.Document{"Id": 1, "Name": "1"}
+	executor.QueryResult = &dynago.QueryResult{Items: []dynago.Document{doc1}}
+	executor.QueryError = &dynago.Error{}
+	result, err := client.Query("table3").Desc().Execute()
 	assert.Equal(2, len(executor.Calls))
 	assert.Equal(false, executor.QueryCall.Ascending)
 	assert.Empty(false, executor.QueryCall.ConsistentRead)
 	assert.Equal(executor.Calls[1], *executor.QueryCall)
+	assert.Error(err)
+	assert.NotNil(result)
+	assert.Equal(1, len(result.Items))
+	assert.Equal(1, result.Count)
+	assert.Equal(1, result.ScannedCount)
 }
 
 func TestMockExecutorScan(t *testing.T) {
