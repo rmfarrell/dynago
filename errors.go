@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+
+	"github.com/underarmour/dynago/internal/dynamodb"
 )
 
 // Encapsulates errors coming from amazon/dynamodb
@@ -92,36 +94,15 @@ type amazonErrorConfig struct {
 	mappedError    AmazonError
 }
 
-// This variable is mostly exposed so that we can document how errors are mapped
-var AmazonErrors = []amazonErrorConfig{
-	{"ConditionalCheckFailedException", 400, ErrorConditionFailed},
-	{"ResourceNotFoundException", 400, ErrorNotFound},
-	{"InternalFailure", 500, ErrorInternalFailure},
-	{"InternalServerError", 500, ErrorInternalFailure},
-	{"IncompleteSignature", 400, ErrorAuth},
-	{"InvalidParameterCombination", 400, ErrorInvalidParameter},
-	{"InvalidParameterValue", 400, ErrorInvalidParameter},
-	{"InvalidQueryParameter", 400, ErrorInvalidParameter},
-	{"InvalidSignatureException", 400, ErrorAuth},
-	{"ItemCollectionSizeLimitExceededException", 400, ErrorCollectionSizeExceeded},
-	{"MalformedQueryString", 404, ErrorInvalidParameter},
-	{"MissingAction", 400, ErrorInvalidParameter},
-	{"MissingAuthenticationToken", 403, ErrorAuth},
-	{"MissingParameter", 400, ErrorInvalidParameter},
-	{"OptInRequired", 403, ErrorAuth},
-	{"ProvisionedThroughputExceededException", 400, ErrorThroughputExceeded},
-	{"RequestExpired", 400, ErrorAuth},
-	{"ResourceInUseException", 400, ErrorResourceInUse},
-	{"ServiceUnavailable", 503, ErrorServiceUnavailable},
-	{"ValidationError", 400, ErrorInvalidParameter},
-	{"ValidationException", 400, ErrorInvalidParameter},
-}
+var amazonErrors []amazonErrorConfig
 
 var amazonErrorMap map[string]*amazonErrorConfig
 
 func init() {
-	amazonErrorMap = make(map[string]*amazonErrorConfig, len(AmazonErrors))
-	for i, conf := range AmazonErrors {
-		amazonErrorMap[conf.amazonCode] = &AmazonErrors[i]
+	amazonErrors = make([]amazonErrorConfig, len(dynamodb.MappedErrors))
+	amazonErrorMap = make(map[string]*amazonErrorConfig, len(amazonErrors))
+	for i, conf := range dynamodb.MappedErrors {
+		amazonErrors[i] = amazonErrorConfig{conf.AmazonCode, conf.ExpectedStatus, AmazonError(conf.MappedError)}
+		amazonErrorMap[conf.AmazonCode] = &amazonErrors[i]
 	}
 }

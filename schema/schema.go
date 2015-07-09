@@ -29,6 +29,7 @@ type TableDescription struct {
 	TableStatus      string
 	CreationDateTime float64
 
+	KeySchema              []KeySchema
 	AttributeDefinitions   []AttributeDefinition
 	GlobalSecondaryIndexes []SecondaryIndexResponse
 	LocalSecondaryIndexes  []SecondaryIndexResponse
