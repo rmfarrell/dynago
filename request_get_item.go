@@ -55,9 +55,9 @@ func (p *GetItem) Execute() (result *GetItemResult, err error) {
 	return p.client.executor.GetItem(p)
 }
 
-func (e *awsExecutor) GetItem(g *GetItem) (result *GetItemResult, err error) {
+func (e *AwsExecutor) GetItem(g *GetItem) (result *GetItemResult, err error) {
 	result = &GetItemResult{}
-	err = e.makeRequestUnmarshal("GetItem", &g.req, result)
+	err = e.MakeRequestUnmarshal("GetItem", &g.req, result)
 	return
 }
 

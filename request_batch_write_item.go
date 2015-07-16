@@ -93,13 +93,13 @@ func (b *BatchWrite) buildTableMap() (m BatchWriteTableMap) {
 	return
 }
 
-func (e *awsExecutor) BatchWriteItem(b *BatchWrite) (result *BatchWriteResult, err error) {
+func (e *AwsExecutor) BatchWriteItem(b *BatchWrite) (result *BatchWriteResult, err error) {
 	req := batchWriteItemRequest{
 		RequestItems: b.buildTableMap(),
 	}
 
 	result = &BatchWriteResult{}
-	err = e.makeRequestUnmarshal("BatchWriteItem", req, result)
+	err = e.MakeRequestUnmarshal("BatchWriteItem", req, result)
 	return
 }
 

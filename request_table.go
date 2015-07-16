@@ -4,21 +4,25 @@ import (
 	"github.com/underarmour/dynago/schema"
 )
 
-func (e *awsExecutor) CreateTable(req *schema.CreateRequest) (*schema.CreateResult, error) {
+type awsSchemaExecutor struct {
+	*AwsExecutor
+}
+
+func (e awsSchemaExecutor) CreateTable(req *schema.CreateRequest) (*schema.CreateResult, error) {
 	resp := &schema.CreateResult{}
-	err := e.makeRequestUnmarshal("CreateTable", req, resp)
+	err := e.MakeRequestUnmarshal("CreateTable", req, resp)
 	return resp, err
 }
 
-func (e *awsExecutor) DeleteTable(req *schema.DeleteRequest) (*schema.DeleteResult, error) {
+func (e awsSchemaExecutor) DeleteTable(req *schema.DeleteRequest) (*schema.DeleteResult, error) {
 	resp := &schema.DeleteResult{}
-	err := e.makeRequestUnmarshal("DeleteTable", req, resp)
+	err := e.MakeRequestUnmarshal("DeleteTable", req, resp)
 	return resp, err
 }
 
-func (e *awsExecutor) DescribeTable(req *schema.DescribeRequest) (resp *schema.DescribeResponse, err error) {
+func (e awsSchemaExecutor) DescribeTable(req *schema.DescribeRequest) (resp *schema.DescribeResponse, err error) {
 	resp = &schema.DescribeResponse{}
-	err = e.makeRequestUnmarshal("DescribeTable", req, resp)
+	err = e.MakeRequestUnmarshal("DescribeTable", req, resp)
 	return
 }
 
@@ -40,9 +44,9 @@ func (l *ListTables) Execute() (result *ListTablesResult, err error) {
 	return
 }
 
-func (e *awsExecutor) ListTables(list *ListTables) (*schema.ListResponse, error) {
+func (e awsSchemaExecutor) ListTables(list *ListTables) (*schema.ListResponse, error) {
 	resp := &schema.ListResponse{}
-	err := e.makeRequestUnmarshal("ListTables", list.req, resp)
+	err := e.MakeRequestUnmarshal("ListTables", list.req, resp)
 	return resp, err
 }
 

@@ -37,10 +37,6 @@ type AwsRequester interface {
 	MakeRequest(target string, body []byte) ([]byte, error)
 }
 
-type awsExecutor struct {
-	Requester AwsRequester
-}
-
 // Create an AWS executor with a specified endpoint and AWS parameters.
 func NewAwsExecutor(endpoint, region, accessKey, secretKey string) Executor {
 	signer := aws.AwsSigner{
@@ -57,10 +53,22 @@ func NewAwsExecutor(endpoint, region, accessKey, secretKey string) Executor {
 		DebugResponses: Debug.HasFlag(DebugResponses),
 		DebugFunc:      DebugFunc,
 	}
-	return &awsExecutor{requester}
+	return &AwsExecutor{requester}
 }
 
-func (e *awsExecutor) makeRequest(target string, document interface{}) ([]byte, error) {
+/*
+The AwsExecutor is the actual underlying implementation that turns dynago
+request structs and makes actual queries.
+*/
+type AwsExecutor struct {
+	// Underlying implementation that makes requests for this executor. It
+	// is called to make every request that the executor makes. Swapping the
+	// underlying implementation is not thread-safe and therefore not
+	// recommended in production code.
+	Requester AwsRequester
+}
+
+func (e *AwsExecutor) makeRequest(target string, document interface{}) ([]byte, error) {
 	buf, err := json.Marshal(document)
 	if err != nil {
 		return nil, err
@@ -68,7 +76,14 @@ func (e *awsExecutor) makeRequest(target string, document interface{}) ([]byte, 
 	return e.Requester.MakeRequest(target, buf)
 }
 
-func (e *awsExecutor) makeRequestUnmarshal(method string, document interface{}, dest interface{}) (err error) {
+/*
+Make a request to the underlying requester, marshaling document as JSON,
+and if the requester doesn't error, unmarshaling the response back into dest.
+
+This method is mostly exposed for those implementing custom executors or
+prototyping new functionality.
+*/
+func (e *AwsExecutor) MakeRequestUnmarshal(method string, document interface{}, dest interface{}) (err error) {
 	body, err := e.makeRequest(method, document)
 	if err != nil {
 		return
@@ -77,6 +92,6 @@ func (e *awsExecutor) makeRequestUnmarshal(method string, document interface{}, 
 	return
 }
 
-func (e *awsExecutor) SchemaExecutor() SchemaExecutor {
-	return e
+func (e *AwsExecutor) SchemaExecutor() SchemaExecutor {
+	return awsSchemaExecutor{e}
 }

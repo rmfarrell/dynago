@@ -107,9 +107,9 @@ func (q *Query) Execute() (result *QueryResult, err error) {
 	return q.client.executor.Query(q)
 }
 
-func (e *awsExecutor) Query(q *Query) (result *QueryResult, err error) {
+func (e *AwsExecutor) Query(q *Query) (result *QueryResult, err error) {
 	result = &QueryResult{query: q}
-	err = e.makeRequestUnmarshal("Query", &q.req, result)
+	err = e.MakeRequestUnmarshal("Query", &q.req, result)
 	if err != nil {
 		result = nil
 	}

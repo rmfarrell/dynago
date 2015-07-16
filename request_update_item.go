@@ -71,10 +71,10 @@ func (u *UpdateItem) Execute() (res *UpdateItemResult, err error) {
 	return u.client.executor.UpdateItem(u)
 }
 
-func (e *awsExecutor) UpdateItem(u *UpdateItem) (res *UpdateItemResult, err error) {
+func (e *AwsExecutor) UpdateItem(u *UpdateItem) (res *UpdateItemResult, err error) {
 	if u.req.ReturnValues != ReturnNone && u.req.ReturnValues != "" {
 		res = &UpdateItemResult{}
-		err = e.makeRequestUnmarshal("UpdateItem", &u.req, res)
+		err = e.MakeRequestUnmarshal("UpdateItem", &u.req, res)
 	} else {
 		_, err = e.makeRequest("UpdateItem", &u.req)
 	}

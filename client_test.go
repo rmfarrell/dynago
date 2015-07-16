@@ -26,8 +26,8 @@ func TestQueryParams(t *testing.T) {
 func TestNewAwsClient(t *testing.T) {
 	assert := assert.New(t)
 	client := NewAwsClient("us-east-1", "abc", "def")
-	assert.IsType(&awsExecutor{}, client.executor)
-	executor := client.executor.(*awsExecutor)
+	assert.IsType(&AwsExecutor{}, client.executor)
+	executor := client.executor.(*AwsExecutor)
 	requester := executor.Requester.(*aws.RequestMaker)
 	assert.Equal("https://dynamodb.us-east-1.amazonaws.com/", requester.Endpoint)
 

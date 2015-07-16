@@ -54,9 +54,9 @@ func (s *Scan) Execute() (*ScanResult, error) {
 	return s.client.executor.Scan(s)
 }
 
-func (e *awsExecutor) Scan(s *Scan) (result *ScanResult, err error) {
+func (e *AwsExecutor) Scan(s *Scan) (result *ScanResult, err error) {
 	result = &ScanResult{req: s}
-	err = e.makeRequestUnmarshal("Scan", s.req, &result)
+	err = e.MakeRequestUnmarshal("Scan", s.req, &result)
 	return
 }
 
