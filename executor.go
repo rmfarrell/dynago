@@ -43,7 +43,7 @@ type awsExecutor struct {
 
 // Create an AWS executor with a specified endpoint and AWS parameters.
 func NewAwsExecutor(endpoint, region, accessKey, secretKey string) Executor {
-	signer := aws.AwsInfo{
+	signer := aws.AwsSigner{
 		Region:    region,
 		AccessKey: accessKey,
 		SecretKey: secretKey,
