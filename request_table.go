@@ -8,21 +8,18 @@ type awsSchemaExecutor struct {
 	*AwsExecutor
 }
 
-func (e awsSchemaExecutor) CreateTable(req *schema.CreateRequest) (*schema.CreateResult, error) {
-	resp := &schema.CreateResult{}
-	err := e.MakeRequestUnmarshal("CreateTable", req, resp)
-	return resp, err
+func (e awsSchemaExecutor) CreateTable(req *schema.CreateRequest) (resp *schema.CreateResult, err error) {
+	err = e.MakeRequestUnmarshal("CreateTable", req, &resp)
+	return
 }
 
-func (e awsSchemaExecutor) DeleteTable(req *schema.DeleteRequest) (*schema.DeleteResult, error) {
-	resp := &schema.DeleteResult{}
-	err := e.MakeRequestUnmarshal("DeleteTable", req, resp)
-	return resp, err
+func (e awsSchemaExecutor) DeleteTable(req *schema.DeleteRequest) (resp *schema.DeleteResult, err error) {
+	err = e.MakeRequestUnmarshal("DeleteTable", req, &resp)
+	return
 }
 
 func (e awsSchemaExecutor) DescribeTable(req *schema.DescribeRequest) (resp *schema.DescribeResponse, err error) {
-	resp = &schema.DescribeResponse{}
-	err = e.MakeRequestUnmarshal("DescribeTable", req, resp)
+	err = e.MakeRequestUnmarshal("DescribeTable", req, &resp)
 	return
 }
 
@@ -44,9 +41,8 @@ func (l *ListTables) Execute() (result *ListTablesResult, err error) {
 	return
 }
 
-func (e awsSchemaExecutor) ListTables(list *ListTables) (*schema.ListResponse, error) {
-	resp := &schema.ListResponse{}
-	err := e.MakeRequestUnmarshal("ListTables", list.req, resp)
+func (e awsSchemaExecutor) ListTables(list *ListTables) (resp *schema.ListResponse, err error) {
+	err = e.MakeRequestUnmarshal("ListTables", list.req, &resp)
 	return resp, err
 }
 
