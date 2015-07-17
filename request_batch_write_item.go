@@ -97,9 +97,7 @@ func (e *AwsExecutor) BatchWriteItem(b *BatchWrite) (result *BatchWriteResult, e
 	req := batchWriteItemRequest{
 		RequestItems: b.buildTableMap(),
 	}
-
-	result = &BatchWriteResult{}
-	err = e.MakeRequestUnmarshal("BatchWriteItem", req, result)
+	err = e.MakeRequestUnmarshal("BatchWriteItem", req, &result)
 	return
 }
 
