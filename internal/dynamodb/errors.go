@@ -34,6 +34,7 @@ var MappedErrors = []DynamoErrorConfig{
 	{"RequestExpired", 400, codes.ErrorAuth},
 	{"ResourceInUseException", 400, codes.ErrorResourceInUse},
 	{"ServiceUnavailable", 503, codes.ErrorServiceUnavailable},
+	{"ThrottlingException", 400, codes.ErrorThrottling},
 	{"ValidationError", 400, codes.ErrorInvalidParameter},
 	{"ValidationException", 400, codes.ErrorInvalidParameter},
 }
