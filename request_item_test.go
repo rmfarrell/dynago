@@ -31,7 +31,7 @@ func TestGetItem(t *testing.T) {
 	assert.Equal(map[string]string{"#Foo": "Foo", "#Bar": "BAR"}, gi.req.ExpressionAttributeNames)
 
 	resultItem := Document{"ID": 10, "Name": "Foo"}
-	mock.GetItemResultItem = resultItem
+	mock.GetItemResult = &GetItemResult{Item: resultItem}
 	result, err := gi.Execute()
 	assert.NoError(err)
 	assert.Equal(resultItem, result.Item)

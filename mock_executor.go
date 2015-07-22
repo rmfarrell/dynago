@@ -45,10 +45,10 @@ type MockExecutor struct {
 	PutItemResult *PutItemResult
 	PutItemError  error
 
-	GetItemCalled     bool
-	GetItemCall       *MockExecutorCall
-	GetItemResultItem Document
-	GetItemError      error
+	GetItemCalled bool
+	GetItemCall   *MockExecutorCall
+	GetItemResult *GetItemResult
+	GetItemError  error
 
 	BatchWriteItemCalled bool
 	BatchWriteItemCall   *MockExecutorCall
@@ -135,7 +135,7 @@ func (e *MockExecutor) GetItem(getItem *GetItem) (*GetItemResult, error) {
 	}
 	e.GetItemCall = &call
 	e.Calls = append(e.Calls, call)
-	return &GetItemResult{Item: e.GetItemResultItem}, e.GetItemError
+	return e.GetItemResult, e.GetItemError
 }
 
 func (e *MockExecutor) PutItem(putItem *PutItem) (*PutItemResult, error) {
