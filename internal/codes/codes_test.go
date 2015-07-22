@@ -3,14 +3,14 @@ package codes_test
 import (
 	"testing"
 
-	"github.com/underarmour/dynago"
-	"github.com/underarmour/dynago/internal/codes"
+	"gopkg.in/underarmour/dynago.v1"
+	"gopkg.in/underarmour/dynago.v1/internal/codes"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestCodeMatch(t *testing.T) {
-	check := func(a dynago.AmazonError, b codes.ErrorCode) {
+	check := func(a codes.ErrorCode, b codes.ErrorCode) {
 		assert.Equal(t, int(a), int(b))
 	}
 	check(dynago.ErrorUnknown, codes.ErrorUnknown)

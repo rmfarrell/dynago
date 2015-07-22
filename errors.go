@@ -6,19 +6,20 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/underarmour/dynago/internal/dynamodb"
+	"gopkg.in/underarmour/dynago.v1/internal/codes"
+	"gopkg.in/underarmour/dynago.v1/internal/dynamodb"
 )
 
 // Encapsulates errors coming from amazon/dynamodb
 type Error struct {
-	Type          AmazonError    // Parsed and mapped down type
-	AmazonRawType string         // Raw error type from amazon
-	Exception     string         // Exception from amazon
-	Message       string         // Raw message from amazon
-	Request       *http.Request  // If available, HTTP request
-	RequestBody   []byte         // If available, raw request body bytes
-	Response      *http.Response // If available, HTTP response
-	ResponseBody  []byte         // If available, raw response body bytes
+	Type          codes.ErrorCode // Parsed and mapped down type
+	AmazonRawType string          // Raw error type from amazon
+	Exception     string          // Exception from amazon
+	Message       string          // Raw message from amazon
+	Request       *http.Request   // If available, HTTP request
+	RequestBody   []byte          // If available, raw request body bytes
+	Response      *http.Response  // If available, HTTP response
+	ResponseBody  []byte          // If available, raw response body bytes
 }
 
 func (e *Error) Error() string {
@@ -63,18 +64,8 @@ type inputError struct {
 	Message       string `json:"message"`
 }
 
-/*
-AmazonError is an enumeration of error categories that Dynago returns.
-
-There are many more actual DynamoDB errors, but many of them are redundant from
-the perspective of application logic; using these mapped-down errors is a handy
-way to implement the logic you want without having a really long set of switch
-statements.
-*/
-type AmazonError int
-
 const (
-	ErrorUnknown AmazonError = iota
+	ErrorUnknown codes.ErrorCode = iota
 
 	ErrorConditionFailed        // Conditional put/update failed; condition not met
 	ErrorCollectionSizeExceeded // Item collection (local secondary index) too large
@@ -91,7 +82,7 @@ const (
 type amazonErrorConfig struct {
 	amazonCode     string
 	expectedStatus int
-	mappedError    AmazonError
+	mappedError    codes.ErrorCode
 }
 
 var amazonErrors []amazonErrorConfig
@@ -102,7 +93,7 @@ func init() {
 	amazonErrors = make([]amazonErrorConfig, len(dynamodb.MappedErrors))
 	amazonErrorMap = make(map[string]*amazonErrorConfig, len(amazonErrors))
 	for i, conf := range dynamodb.MappedErrors {
-		amazonErrors[i] = amazonErrorConfig{conf.AmazonCode, conf.ExpectedStatus, AmazonError(conf.MappedError)}
+		amazonErrors[i] = amazonErrorConfig{conf.AmazonCode, conf.ExpectedStatus, conf.MappedError}
 		amazonErrorMap[conf.AmazonCode] = &amazonErrors[i]
 	}
 }
