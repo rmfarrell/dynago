@@ -8,7 +8,7 @@ go:
 env:
     global:
         - DYNAGO_TEST_ENDPOINT="http://localhost:8001/"
-        - DYNAGO_SUBPATH="src/gopkg.in/underarmour/dynago.v0"
+        - DYNAGO_SUBPATH="src/gopkg.in/underarmour/dynago.v1"
 
 before_install:
     - "pwd"
