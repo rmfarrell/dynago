@@ -2,12 +2,15 @@ package aws
 
 import (
 	"bytes"
+	"errors"
 	"io"
 	"net/http"
 	"strings"
 )
 
 const DynamoTargetPrefix = "DynamoDB_20120810." // This is the Dynamo API version we support
+var MaxResponseSize int64 = 5 * 1024 * 1024     // 5MB maximum response
+var MaxResponseError = errors.New("Exceeded maximum response size of 5MB")
 
 type Signer interface {
 	SignRequest(*http.Request, []byte)
@@ -64,11 +67,17 @@ func (r *RequestMaker) MakeRequest(target string, body []byte) ([]byte, error) {
 }
 
 func responseBytes(response *http.Response) (output []byte, err error) {
-	if response.ContentLength > 0 {
+	if response.ContentLength != 0 {
 		var buffer bytes.Buffer
-		buffer.Grow(int(response.ContentLength)) // avoid a ton of allocations
-		_, err = io.Copy(&buffer, response.Body)
-		if err == nil {
+		reader := io.LimitReader(response.Body, MaxResponseSize)
+		if response.ContentLength > 0 {
+			buffer.Grow(int(response.ContentLength)) // avoid a ton of allocations
+		}
+		var n int64
+		n, err = io.Copy(&buffer, reader)
+		if n >= MaxResponseSize {
+			err = MaxResponseError
+		} else if err == nil {
 			output = buffer.Bytes()
 			err = response.Body.Close()
 		}
