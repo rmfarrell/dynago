@@ -50,6 +50,18 @@ func (s Scan) Segment(segment, total int) *Scan {
 	return &s
 }
 
+/*
+Select specifies how attributes are chosen, or enables count mode.
+
+Most of the time, specifying Select is not required, because the DynamoDB
+API does the "right thing" inferring values based on other attributes like
+the projection expression, index, etc.
+*/
+func (s Scan) Select(value Select) *Scan {
+	s.req.Select = value
+	return &s
+}
+
 func (s *Scan) Execute() (*ScanResult, error) {
 	return s.client.executor.Scan(s)
 }

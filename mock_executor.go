@@ -95,6 +95,7 @@ type MockExecutorCall struct {
 	Ascending              bool
 	Limit                  uint
 	ExclusiveStartKey      Document
+	Select                 Select
 	Segment                *int
 	TotalSegments          *int
 
@@ -172,6 +173,7 @@ func callFromQueryReq(req queryRequest) MockExecutorCall {
 		ExpressionAttributeNames:  req.ExpressionAttributeNames,
 		ExpressionAttributeValues: req.ExpressionAttributeValues,
 		ProjectionExpression:      req.ProjectionExpression,
+		Select:                    req.Select,
 		Ascending:                 ascending,
 		ConsistentRead:            consistent,
 		Limit:                     req.Limit,

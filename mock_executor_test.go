@@ -82,7 +82,7 @@ func TestMockExecutorQuery(t *testing.T) {
 		ConsistentRead(true).
 		KeyConditionExpression("ABC = :def").
 		FilterExpression("Foo > :param", dynago.Param{":param", 95}).
-		Limit(50).
+		Limit(50).Select(dynago.SelectSpecificAttributes).
 		Execute()
 	assert.Equal(true, executor.QueryCalled)
 	assert.Equal("Query", executor.QueryCall.Method)
@@ -94,6 +94,7 @@ func TestMockExecutorQuery(t *testing.T) {
 	assert.Equal(dynago.Document{":param": 95}, executor.QueryCall.ExpressionAttributeValues)
 	assert.Equal("ABC = :def", executor.QueryCall.KeyConditionExpression)
 	assert.Equal("Foo > :param", executor.QueryCall.FilterExpression)
+	assert.Equal(dynago.SelectSpecificAttributes, executor.QueryCall.Select)
 	assert.Equal(executor.Calls[0], *executor.QueryCall)
 
 	doc1 := dynago.Document{"Id": 1, "Name": "1"}
@@ -129,11 +130,12 @@ func TestMockExecutorScan(t *testing.T) {
 	assert.Equal("Foo, Bar, #baz", executor.ScanCall.ProjectionExpression)
 	assert.Equal("index5", executor.ScanCall.IndexName)
 	assert.Nil(executor.ScanCall.Segment)
-	scan.Segment(5, 10).Execute()
+	scan.Segment(5, 10).Select(dynago.SelectCount).Execute()
 	assert.Equal(2, len(executor.Calls))
 	assert.NotNil(executor.ScanCall.Segment)
 	assert.Equal(5, *executor.ScanCall.Segment)
 	assert.Equal(10, *executor.ScanCall.TotalSegments)
+	assert.Equal(dynago.SelectCount, executor.ScanCall.Select)
 }
 
 func TestMockExecutorUpdateItem(t *testing.T) {

@@ -10,6 +10,7 @@ type queryRequest struct {
 	ProjectionExpression   string `json:",omitempty"`
 	expressionAttributes
 
+	Select           Select         `json:",omitempty"`
 	CapacityDetail   CapacityDetail `json:"ReturnConsumedCapacity,omitempty"`
 	ConsistentRead   *bool          `json:",omitempty"`
 	ScanIndexForward *bool          `json:",omitempty"`
@@ -72,6 +73,18 @@ func (q Query) Param(key string, value interface{}) *Query {
 // Set a param, a document of params, or multiple params
 func (q Query) Params(params ...Params) *Query {
 	q.req.paramsHelper(params)
+	return &q
+}
+
+/*
+Select specifies how attributes are chosen, or enables count mode.
+
+Most of the time, specifying Select is not required, because the DynamoDB
+API does the "right thing" inferring values based on other attributes like
+the projection expression, index, etc.
+*/
+func (q Query) Select(value Select) *Query {
+	q.req.Select = value
 	return &q
 }
 
