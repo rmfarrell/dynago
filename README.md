@@ -75,6 +75,19 @@ client.PutItem("person", doc).Execute()
 [dynagoNumber]: http://godoc.org/gopkg.in/underarmour/dynago.v1#Number
 [dynagoStringSet]: http://godoc.org/gopkg.in/underarmour/dynago.v1#StringSet
 
+Debugging
+---------
+
+Dynago can dump request or response information for you for use in debugging.
+Simply set `dynago.Debug` with the necessary flags:
+
+```go
+dynago.Debug = dynago.DebugRequests | dynago.DebugResponses
+```
+
+If you would like to change how the debugging is printed, please set `dynago.Debug` (`func(string, ...interface{})`) to your preference.
+
+
 Additional resources
 --------------------
  * [DynamoDB's own API reference][apireference] explains the operations that DynamoDB supports, and as such will provide more information on how specific parameters and values within dynago actually work.
