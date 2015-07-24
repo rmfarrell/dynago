@@ -129,10 +129,13 @@ func (e *MockExecutor) DeleteItem(deleteItem *DeleteItem) (*DeleteItemResult, er
 func (e *MockExecutor) GetItem(getItem *GetItem) (*GetItemResult, error) {
 	e.GetItemCalled = true
 	call := MockExecutorCall{
-		Method:         "GetItem",
-		Table:          getItem.req.TableName,
-		Key:            getItem.req.Key,
-		ConsistentRead: getItem.req.ConsistentRead,
+		Method:                    "GetItem",
+		Table:                     getItem.req.TableName,
+		Key:                       getItem.req.Key,
+		ConsistentRead:            getItem.req.ConsistentRead,
+		ExpressionAttributeValues: getItem.req.ExpressionAttributeValues,
+		ExpressionAttributeNames:  getItem.req.ExpressionAttributeNames,
+		ProjectionExpression:      getItem.req.ProjectionExpression,
 	}
 	e.GetItemCall = &call
 	e.Calls = append(e.Calls, call)

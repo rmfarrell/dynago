@@ -52,12 +52,19 @@ func TestMockExecutorDeleteItem(t *testing.T) {
 
 func TestMockExecutorGetItem(t *testing.T) {
 	assert, client, executor := mockSetup(t)
-	client.GetItem("table1", dynago.HashKey("Id", 5)).ConsistentRead(true).Execute()
+	client.GetItem("table1", dynago.HashKey("Id", 5)).
+		ConsistentRead(true).
+		ProjectionExpression("foo").
+		Param(":foo", "bar").
+		Execute()
+
 	assert.Equal(true, executor.GetItemCalled)
 	assert.Equal("GetItem", executor.GetItemCall.Method)
 	assert.Equal("table1", executor.GetItemCall.Table)
 	assert.Equal(true, executor.GetItemCall.ConsistentRead)
 	assert.Equal(dynago.Document{"Id": 5}, executor.GetItemCall.Key)
+	assert.Equal("foo", executor.GetItemCall.ProjectionExpression)
+	assert.Equal(dynago.Document{":foo": "bar"}, executor.GetItemCall.ExpressionAttributeValues)
 	assert.Equal(1, len(executor.Calls))
 	assert.Equal(executor.Calls[0], *executor.GetItemCall)
 }
