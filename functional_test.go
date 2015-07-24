@@ -175,14 +175,35 @@ func TestUpdateItemConditional(t *testing.T) {
 	assert, client := funcTest.setUp(t)
 	_, err := client.PutItem("Person", person(5, "ToUpdate")).Execute()
 	assert.NoError(err)
-	result, err := client.UpdateItem("Person", dynago.HashKey("Id", 5)).
+	update := client.UpdateItem("Person", dynago.HashKey("Id", 5)).
 		UpdateExpression("SET #n = :name").
+		ConditionExpression("#n = :orig").
 		Param("#n", "Name").Param(":name", "Bob").
-		ReturnValues(dynago.ReturnUpdatedNew).Execute()
+		ReturnValues(dynago.ReturnUpdatedNew)
+
+	result, err := update.Param(":orig", "NotValue").Execute()
+	assert.Error(err)
+	assert.IsType(&dynago.Error{}, err)
+	e := err.(*dynago.Error)
+	assert.Equal(dynago.ErrorConditionFailed, e.Type)
+
+	result, err = update.Param(":orig", "ToUpdate").Execute()
 	assert.NoError(err)
 	assert.NotNil(result)
 	assert.NotNil(result.Attributes)
 	assert.Equal("Bob", result.Attributes["Name"])
+}
+
+func TestUpdateItemSimple(t *testing.T) {
+	assert, client := funcTest.setUp(t)
+	_, err := client.PutItem("Person", person(5, "ToUpdate")).Execute()
+	assert.NoError(err)
+	result, err := client.UpdateItem("Person", dynago.HashKey("Id", 5)).
+		UpdateExpression("SET #n = :name").
+		Param("#n", "Name").Param(":name", "Bob").
+		Execute()
+	assert.NoError(err)
+	assert.Nil(result)
 }
 
 func TestTableActions(t *testing.T) {
