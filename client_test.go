@@ -29,7 +29,7 @@ func TestNewAwsClient(t *testing.T) {
 	assert.IsType(&AwsExecutor{}, client.executor)
 	executor := client.executor.(*AwsExecutor)
 	requester := executor.Requester.(*aws.RequestMaker)
-	assert.Equal("https://dynamodb.us-east-1.amazonaws.com/", requester.Endpoint)
+	assert.Equal("https://dynamodb.us-east-1.amazonaws.com:443/", requester.Endpoint)
 
 	signer := requester.Signer.(*aws.AwsSigner)
 	assert.Equal("us-east-1", signer.Region)

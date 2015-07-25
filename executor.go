@@ -46,7 +46,7 @@ func NewAwsExecutor(endpoint, region, accessKey, secretKey string) *AwsExecutor 
 		Service:   "dynamodb",
 	}
 	requester := &aws.RequestMaker{
-		Endpoint:       endpoint,
+		Endpoint:       aws.FixEndpointUrl(endpoint),
 		Signer:         &signer,
 		BuildError:     buildError,
 		DebugRequests:  Debug.HasFlag(DebugRequests),

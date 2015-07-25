@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 )
 
@@ -83,4 +84,18 @@ func responseBytes(response *http.Response) (output []byte, err error) {
 		}
 	}
 	return
+}
+
+func FixEndpointUrl(endpoint string) string {
+	u, err := url.Parse(endpoint)
+	if err != nil {
+		panic(err)
+	}
+	if u.Path == "" {
+		u.Path = "/"
+	}
+	if u.Scheme == "https" && !strings.Contains(u.Host, ":") {
+		u.Host += ":443"
+	}
+	return u.String()
 }
