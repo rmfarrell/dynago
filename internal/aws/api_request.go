@@ -10,8 +10,8 @@ import (
 )
 
 const DynamoTargetPrefix = "DynamoDB_20120810." // This is the Dynamo API version we support
-var MaxResponseSize int64 = 5 * 1024 * 1024     // 5MB maximum response
-var MaxResponseError = errors.New("Exceeded maximum response size of 5MB")
+var MaxResponseSize int64 = 25 * 1024 * 1024    // 25MB maximum response
+var MaxResponseError = errors.New("Exceeded maximum response size of 25MB")
 
 type Signer interface {
 	SignRequest(*http.Request, []byte)
