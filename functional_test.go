@@ -27,6 +27,14 @@ func (f *functional) setUp(t *testing.T) (*assert.Assertions, *dynago.Client) {
 		executor := dynago.NewAwsExecutor(endpoint, "us-east-1", "AKIAEXAMPLE", "SECRETEXAMPLE")
 		f.client = dynago.NewClient(executor)
 		makeTables(t, f.client)
+
+		// Add some posts
+		writer := f.client.BatchWrite()
+		for i := 100; i < 118; i++ {
+			writer = writer.Put("Posts", dynago.Document{"UserId": 42, "Dated": i})
+		}
+		_, err := writer.Execute()
+		assert.NoError(t, err)
 	}
 	return assert.New(t), f.client
 }
@@ -91,6 +99,20 @@ func complexIndexedSchema() *schema.CreateRequest {
 			StreamViewType: "NEW_AND_OLD_IMAGES",
 		},
 	}
+}
+
+func TestBatchGet(t *testing.T) {
+	assert, client := funcTest.setUp(t)
+	k := func(dated int) dynago.Document {
+		return dynago.HashRangeKey("UserId", 42, "Dated", dated)
+	}
+	g := client.BatchGet().Get("Posts", k(100), k(101), k(102))
+
+	result, err := g.Execute()
+	assert.NoError(err)
+	assert.NotNil(result)
+	assert.Equal(1, len(result.Responses))
+	assert.Equal(3, len(result.Responses["Posts"]))
 }
 
 func TestDeleteItem_functional(t *testing.T) {

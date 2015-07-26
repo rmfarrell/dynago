@@ -13,6 +13,27 @@ func mockSetup(t *testing.T) (*assert.Assertions, *dynago.Client, *dynago.MockEx
 	return assert.New(t), dynago.NewClient(executor), executor
 }
 
+func TestMockExecutorBatchGetItem(t *testing.T) {
+	assert, client, executor := mockSetup(t)
+
+	key1, key2 := dynago.HashKey("Id", 3), dynago.HashKey("Id", 4)
+	client.BatchGet().
+		Get("table1", key1, key2).
+		ProjectionExpression("table1", "#n,Foo,Bar", dynago.Param{"#n", "Name"}).
+		Get("table2", key2).
+		Execute()
+	assert.Equal(true, executor.BatchGetItemCalled)
+	assert.NotNil(executor.BatchGetItemCall)
+	call := executor.BatchGetItemCall
+	assert.Equal("BatchGetItem", call.Method)
+	assert.Equal(2, len(call.BatchGets))
+	assert.Equal([]dynago.Document{key2, key1}, call.BatchGets["table1"].Keys)
+	assert.Equal("#n,Foo,Bar", call.BatchGets["table1"].ProjectionExpression)
+	assert.Equal(map[string]string{"#n": "Name"}, call.BatchGets["table1"].ExpressionAttributeNames)
+	assert.Equal([]dynago.Document{key2}, call.BatchGets["table2"].Keys)
+	assert.Equal("", call.BatchGets["table2"].ProjectionExpression)
+}
+
 func TestMockExecutorBatchWriteItem(t *testing.T) {
 	assert, client, executor := mockSetup(t)
 	doc1 := dynago.Document{"Id": 1, "Name": "1"}

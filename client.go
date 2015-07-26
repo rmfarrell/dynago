@@ -31,6 +31,10 @@ type Client struct {
 	schemaExecutor SchemaExecutor
 }
 
+func (c *Client) BatchGet() *BatchGet {
+	return &BatchGet{client: c}
+}
+
 /*
 Compose a batch write.
 
