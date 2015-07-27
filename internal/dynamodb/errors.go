@@ -7,14 +7,14 @@ import (
 	"gopkg.in/underarmour/dynago.v1/internal/codes"
 )
 
-type DynamoErrorConfig struct {
+type ErrorConfig struct {
 	AmazonCode     string
 	ExpectedStatus int
 	MappedError    codes.ErrorCode
 }
 
 // This variable is mostly exposed so that we can document how errors are mapped
-var MappedErrors = []DynamoErrorConfig{
+var MappedErrors = []ErrorConfig{
 	{"ConditionalCheckFailedException", 400, codes.ErrorConditionFailed},
 	{"InternalFailure", 500, codes.ErrorInternalFailure},
 	{"InternalServerError", 500, codes.ErrorInternalFailure},
