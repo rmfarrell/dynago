@@ -8,12 +8,16 @@ import (
 	"time"
 )
 
-type StringSet []string
-
 type NumberSet []string
 
 type BinarySet [][]byte
 
+/*
+Lists represent DynamoDB lists, which are functionally very similar to JSON
+lists.  Like JSON lists, these lists are heterogeneous, which means that the
+elements of the list can be any valid value type, which includes other lists,
+documents, numbers, strings, etc.
+*/
 type List []interface{}
 
 /*
@@ -225,6 +229,16 @@ provide the Params interface.
 type Params interface {
 	AsParams() []Param
 }
+
+/*
+Store a set of strings.
+
+Sets in DynamoDB do not guarantee any ordering, so storing and retrieving a
+StringSet may not give you back the same order you put it in. The main
+advantage of using sets in DynamoDB is using atomic updates with ADD and DELETE
+in your UpdateExpression.
+*/
+type StringSet []string
 
 func isEmptyValue(v reflect.Value) bool {
 	switch v.Kind() {

@@ -1,12 +1,22 @@
 package dynago_test
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/underarmour/dynago.v1"
 )
+
+func ExampleList() {
+	l := dynago.List{
+		1,
+		"Foo",
+		dynago.Document{"Foo": "Bar"},
+	}
+	fmt.Printf("%s", l[1]) //Output: Foo
+}
 
 func TestNumberIntValReturnsTheValueAsAnInt(t *testing.T) {
 	num := dynago.Number("18")
