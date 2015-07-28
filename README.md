@@ -69,3 +69,9 @@ client.PutItem("person", doc).Execute()
  * String sets, number sets, binary sets are supported using `dynago.StringSet` `dynago.NumberSet` `dynago.BinarySet`
  * Lists are supported using `dynago.List`
  * `time.Time` is only accepted if it's a UTC time, and is marshaled to a dynamo string in iso8601 compact format. It comes back as a string, an can be got back using `GetTime()` on `Document`.
+
+
+Additional resources
+--------------------
+
+http://godoc.org/github.com/crast/dynatools
