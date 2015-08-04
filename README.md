@@ -79,19 +79,21 @@ Debugging
 ---------
 
 Dynago can dump request or response information for you for use in debugging.
-Simply set `dynago.Debug` with the necessary flags:
+Simply set [`dynago.Debug`][dynagoDebug] with the necessary flags:
 
 ```go
 dynago.Debug = dynago.DebugRequests | dynago.DebugResponses
 ```
 
-If you would like to change how the debugging is printed, please set `dynago.Debug` (`func(string, ...interface{})`) to your preference.
+If you would like to change how the debugging is printed, please set [`dynago.DebugFunc`][dynagoDebugFunc] (`func(string, ...interface{})`) to your preference.
 
+[dynagoDebug]: http://godoc.org/gopkg.in/underarmour/dynago.v1#Debug
+[dynagoDebugFunc]: http://godoc.org/gopkg.in/underarmour/dynago.v1#DebugFunc
 
 Additional resources
 --------------------
  * [DynamoDB's own API reference][apireference] explains the operations that DynamoDB supports, and as such will provide more information on how specific parameters and values within dynago actually work.
- * http://godoc.org/github.com/crast/dynatools is a collection of packages with "edge" functionality for dynago, which includes additional libraries to add on, and some functionality fixes which may be considered for merging into dynago core in the future. It includes bits such as pluggable authentication, support for DynamoDB streams, and more.
+ * http://godoc.org/github.com/crast/dynatools is a collection of packages with "edge" functionality for dynago, which includes additional libraries to add on, and some functionality fixes which may be considered for merging into dynago core in the future. It includes bits such as pluggable authentication, [support for DynamoDB streams](http://godoc.org/github.com/crast/dynatools/streams#Streamer), and more.
 
 [apireference]: http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/Welcome.html
 
