@@ -66,7 +66,15 @@ func TestQueryCopyProperty(t *testing.T) {
 	q.ConsistentRead(true)
 	assert.Nil(q.req.ConsistentRead)
 
-	// TODO expand on this
+	assert.Nil(q.req.ScanIndexForward)
+	q2 = q.Desc()
+	assert.Nil(q.req.ScanIndexForward)
+	assert.Equal(false, *q2.req.ScanIndexForward)
+
+	q3 := q2.ScanIndexForward(true)
+	assert.Nil(q.req.ScanIndexForward)
+	assert.Equal(false, *q2.req.ScanIndexForward)
+	assert.Equal(true, *q3.req.ScanIndexForward)
 }
 
 // This test checks that queries can be reused
