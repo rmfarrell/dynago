@@ -31,6 +31,11 @@ type Client struct {
 	schemaExecutor SchemaExecutor
 }
 
+/*
+Compose a batch get operation.
+
+Batch gets allow you to get up to 100 keys, in parallel, even across multiple tables, in a single operation.
+*/
 func (c *Client) BatchGet() *BatchGet {
 	return &BatchGet{client: c}
 }

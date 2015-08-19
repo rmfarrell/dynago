@@ -6,6 +6,23 @@ import (
 	"gopkg.in/underarmour/dynago.v1/schema"
 )
 
+func ExampleClient_BatchGet(client *dynago.Client) {
+	key1 := dynago.HashKey("Id", 5)
+	key2 := dynago.HashKey("Id", 7)
+
+	result, err := client.BatchGet().
+		Get("Topics", key1, key2).
+		Get("Users", dynago.HashKey("UserId", 4)).
+		ProjectionExpression("Users", "UserId, FirstName, Email").
+		Execute()
+
+	if err == nil {
+		for _, record := range result.Responses["Topics"] {
+			fmt.Printf("Topic %d: %s\n", record["Id"], record["Title"])
+		}
+	}
+}
+
 func ExampleClient_BatchWrite(client *dynago.Client) {
 	record1 := dynago.Document{"Id": 1, "Name": "Person1"}
 	record2 := dynago.Document{"Id": 2, "Name": "Person2"}
