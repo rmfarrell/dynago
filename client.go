@@ -26,6 +26,12 @@ func NewClient(executor Executor) *Client {
 	return &Client{executor, executor.SchemaExecutor()}
 }
 
+/*
+Client is the primary start point of interaction with Dynago.
+
+Client is concurrency safe, and completely okay to be used in multiple
+threads/goroutines, as are the operations involving chaining on the client.
+*/
 type Client struct {
 	executor       Executor
 	schemaExecutor SchemaExecutor
