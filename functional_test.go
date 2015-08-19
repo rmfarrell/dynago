@@ -106,7 +106,9 @@ func TestBatchGet(t *testing.T) {
 	k := func(dated int) dynago.Document {
 		return dynago.HashRangeKey("UserId", 42, "Dated", dated)
 	}
-	g := client.BatchGet().Get("Posts", k(100), k(101), k(102))
+	g := client.BatchGet().
+		Get("Posts", k(100), k(101), k(102)).
+		ConsistentRead("Posts", true)
 
 	result, err := g.Execute()
 	assert.NoError(err)

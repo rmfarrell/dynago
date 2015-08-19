@@ -11,7 +11,7 @@ import (
 
 func ExampleList() {
 	l := dynago.List{
-		1,
+		1234,
 		"Foo",
 		dynago.Document{"Foo": "Bar"},
 	}
