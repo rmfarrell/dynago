@@ -85,21 +85,26 @@ Simply set [`dynago.Debug`][dynagoDebug] with the necessary flags:
 dynago.Debug = dynago.DebugRequests | dynago.DebugResponses
 ```
 
-If you would like to change how the debugging is printed, please set [`dynago.DebugFunc`][dynagoDebugFunc] (`func(string, ...interface{})`) to your preference.
+If you would like to change how the debugging is printed, please set [`dynago.DebugFunc`][dynagoDebugFunc] to your preference.
 
 [dynagoDebug]: http://godoc.org/gopkg.in/underarmour/dynago.v1#Debug
 [dynagoDebugFunc]: http://godoc.org/gopkg.in/underarmour/dynago.v1#DebugFunc
 
+Version Compatibility
+---------------------
+
+Dynago follows [Semantic Versioning](http://semver.org/) via the gopkg.in interface, and within the v1 chain, we will not break the existing API or behaviour of existing code using Dynago. We will add new methods and features, but it again should not break code.
+
 Additional resources
 --------------------
  * [DynamoDB's own API reference][apireference] explains the operations that DynamoDB supports, and as such will provide more information on how specific parameters and values within dynago actually work.
- * http://godoc.org/github.com/crast/dynatools is a collection of packages with "edge" functionality for dynago, which includes additional libraries to add on, and some functionality fixes which may be considered for merging into dynago core in the future. It includes bits such as pluggable authentication, [support for DynamoDB streams](http://godoc.org/github.com/crast/dynatools/streams#Streamer), and more.
+ * http://godoc.org/github.com/crast/dynatools is a collection of packages with "edge" functionality for Dynago, which includes additional libraries to add on, and some functionality fixes which may be considered for merging into dynago core in the future. It includes bits such as pluggable authentication, [support for DynamoDB streams](http://godoc.org/github.com/crast/dynatools/streamer#Streamer), [safe update expressions](http://godoc.org/github.com/crast/dynatools/safeupdate) and more.
 
 [apireference]: http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/Welcome.html
 
 The past, and the future
 ------------------------
 
-Dynago came out of a dissatisfaction with the existing features of the major implementation of DynamoDB for Go that existed back in April 2015, because many operations used deprecated API's (at the time) and made it very difficult to know which operations we should actually use. Not to mention, the annoying parts of dealing with DynamoDB types.
+Dynago currently implements all of its support for the underlying DynamoDB API encoding, AWS signing/authentication, etc. This happened in part because the existing libraries out there at the time of writing used deprecated API's and complicated methods, and it was actually cleaner at the time to support the API by fresh implementation.
 
-[AWS-SDK-Go](https://github.com/aws/aws-sdk-go) exists as of June 2015 and has a very up to date API, but it also comes with the pain of using bare structs which minimally wrap protocol-level details of DynamoDB, which makes it a pain to use for writing applications (dealing with DynamoDB's internal type system is boilerplatey). For this reason, there's still a reason for Dynago to exist, but once Amazon has trued up their SDK and brought it out of developer preview, the plan is to have Dynago use it as the underlying protocol and signature implementation, but keep providing dynago's clean and simple API for building queries and marshaling datatypes in dynamodb.
+[AWS-SDK-Go](https://github.com/aws/aws-sdk-go) exists as of June 2015 and has a very up to date API, but it also comes with the pain of using bare structs which minimally wrap protocol-level details of DynamoDB, which makes it a pain to use for writing applications (dealing with DynamoDB's internal type system is boilerplatey). Once Amazon has brought it out of developer preview, the plan is to have Dynago use it as the underlying protocol and signature implementation, but keep providing Dynago's clean and simple API for building queries and marshaling datatypes in DynamoDB.
