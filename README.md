@@ -1,6 +1,8 @@
 Dynago
 ======
 
+[![Build Status](https://travis-ci.org/underarmour/dynago.svg?branch=master)](https://travis-ci.org/underarmour/dynago) [![GoDoc](https://godoc.org/gopkg.in/underarmour/dynago.v1?status.svg)](https://godoc.org/gopkg.in/underarmour/dynago.v1)
+
 Dynago is a DynamoDB client API for Go.
 
 This attempts to be a really simple, principle of least-surprise client for the DynamoDB API.
