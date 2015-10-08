@@ -2,6 +2,8 @@ package dynago
 
 type batchWriteItemRequest struct {
 	RequestItems BatchWriteTableMap
+
+	ReturnConsumedCapacity CapacityDetail `json:",omitempty"`
 }
 
 type BatchWriteTableMap map[string][]*BatchWriteTableEntry
@@ -44,6 +46,8 @@ type BatchWrite struct {
 	client  *Client
 	puts    *batchAction
 	deletes *batchAction
+
+	capacityDetail CapacityDetail
 }
 
 /*
@@ -59,6 +63,11 @@ Add some number of deletes for a table.
 */
 func (b BatchWrite) Delete(table string, keys ...Document) *BatchWrite {
 	addBatchActions(&b.deletes, table, keys)
+	return &b
+}
+
+func (b BatchWrite) ReturnConsumedCapacity(consumedCapacity CapacityDetail) *BatchWrite {
+	b.capacityDetail = consumedCapacity
 	return &b
 }
 
@@ -87,7 +96,8 @@ func (b *BatchWrite) buildTableMap() (m BatchWriteTableMap) {
 
 func (e *AwsExecutor) BatchWriteItem(b *BatchWrite) (result *BatchWriteResult, err error) {
 	req := batchWriteItemRequest{
-		RequestItems: b.buildTableMap(),
+		RequestItems:           b.buildTableMap(),
+		ReturnConsumedCapacity: b.capacityDetail,
 	}
 
 	err = e.MakeRequestUnmarshal("BatchWriteItem", req, &result)
@@ -96,7 +106,7 @@ func (e *AwsExecutor) BatchWriteItem(b *BatchWrite) (result *BatchWriteResult, e
 
 type BatchWriteResult struct {
 	UnprocessedItems BatchWriteTableMap
-	// TODO ConsumedCapacity
+	ConsumedCapacity BatchConsumedCapacity
 }
 
 ///////////////////// Batch Get
@@ -109,6 +119,8 @@ const (
 
 type batchGetItemRequest struct {
 	RequestItems BatchGetTableMap
+
+	ReturnConsumedCapacity CapacityDetail `json:",omitempty"`
 }
 
 type BatchGetTableMap map[string]*BatchGetTableEntry
@@ -123,9 +135,10 @@ type BatchGetTableEntry struct {
 
 type BatchGet struct {
 	client  *Client
-	req     batchGetItemRequest
 	gets    *batchAction
 	options *batchAction
+
+	capacityDetail CapacityDetail
 }
 
 /*
@@ -166,6 +179,11 @@ func (b BatchGet) ConsistentRead(table string, consistent bool) *BatchGet {
 	return &b
 }
 
+func (b BatchGet) ReturnConsumedCapacity(consumedCapacity CapacityDetail) *BatchGet {
+	b.capacityDetail = consumedCapacity
+	return &b
+}
+
 func (b *BatchGet) buildTableMap() BatchGetTableMap {
 	m := BatchGetTableMap{}
 	ensure := func(key string) (entry *BatchGetTableEntry) {
@@ -201,7 +219,10 @@ func (b *BatchGet) Execute() (result *BatchGetResult, err error) {
 }
 
 func (e *AwsExecutor) BatchGetItem(b *BatchGet) (result *BatchGetResult, err error) {
-	req := batchGetItemRequest{b.buildTableMap()}
+	req := batchGetItemRequest{
+		RequestItems:           b.buildTableMap(),
+		ReturnConsumedCapacity: b.capacityDetail,
+	}
 	err = e.MakeRequestUnmarshal("BatchGetItem", &req, &result)
 	return
 }
@@ -216,6 +237,8 @@ type BatchGetResult struct {
 	// This could be because of response size exceeding the limit or the
 	// provisioned throughput being exceeded on one or more tables in this request.
 	UnprocessedKeys BatchGetTableMap // Table name -> keys and settings
+
+	ConsumedCapacity BatchConsumedCapacity
 }
 
 func addBatchActions(list **batchAction, table string, items []Document) {

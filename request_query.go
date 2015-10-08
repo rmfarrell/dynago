@@ -10,14 +10,15 @@ type queryRequest struct {
 	ProjectionExpression   string `json:",omitempty"`
 	expressionAttributes
 
-	Select           Select         `json:",omitempty"`
-	CapacityDetail   CapacityDetail `json:"ReturnConsumedCapacity,omitempty"`
-	ConsistentRead   *bool          `json:",omitempty"`
-	ScanIndexForward *bool          `json:",omitempty"`
+	Select           Select `json:",omitempty"`
+	ConsistentRead   *bool  `json:",omitempty"`
+	ScanIndexForward *bool  `json:",omitempty"`
 
 	// Limit/offset
 	Limit             uint     `json:",omitempty"`
 	ExclusiveStartKey Document `json:",omitempty"`
+
+	ReturnConsumedCapacity CapacityDetail `json:",omitempty"`
 }
 
 func newQuery(client *Client, table string) *Query {
@@ -73,6 +74,13 @@ func (q Query) Param(key string, value interface{}) *Query {
 // Set a param, a document of params, or multiple params
 func (q Query) Params(params ...Params) *Query {
 	q.req.paramsHelper(params)
+	return &q
+}
+
+// Specify you want consumed capacity information in the response.
+// Defaults to CapacityNone if not set
+func (q Query) ReturnConsumedCapacity(consumedCapacity CapacityDetail) *Query {
+	q.req.ReturnConsumedCapacity = consumedCapacity
 	return &q
 }
 
@@ -143,6 +151,9 @@ type QueryResult struct {
 	Count            int        // The total number of items in the result
 	ScannedCount     int        // How many items were scanned past to get the result
 	LastEvaluatedKey Document   // The offset key for the next page.
+
+	// ConsumedCapacity is only set if ReturnConsumedCapacity is given.
+	ConsumedCapacity *ConsumedCapacity
 }
 
 // Helper for getting a query which will get the next page of results.

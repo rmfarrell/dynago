@@ -8,8 +8,8 @@ type getItemRequest struct {
 	ProjectionExpression string `json:",omitempty"`
 	expressionAttributes
 
-	// TODO ReturnConsumedCapacity string
-	ConsistentRead bool `json:",omitempty"`
+	ReturnConsumedCapacity CapacityDetail `json:",omitempty"`
+	ConsistentRead         bool           `json:",omitempty"`
 }
 
 func newGetItem(client *Client, table string, key Document) *GetItem {
@@ -45,6 +45,11 @@ func (p GetItem) Params(params ...Params) *GetItem {
 	return &p
 }
 
+func (p GetItem) ReturnConsumedCapacity(consumedCapacity CapacityDetail) *GetItem {
+	p.req.ReturnConsumedCapacity = consumedCapacity
+	return &p
+}
+
 // Set up this get to be a strongly consistent read.
 func (p GetItem) ConsistentRead(strong bool) *GetItem {
 	p.req.ConsistentRead = strong
@@ -64,5 +69,5 @@ func (e *AwsExecutor) GetItem(g *GetItem) (result *GetItemResult, err error) {
 // The result from executing a GetItem.
 type GetItemResult struct {
 	Item             Document
-	ConsumedCapacity interface{} // TODO
+	ConsumedCapacity *ConsumedCapacity
 }

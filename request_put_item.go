@@ -7,9 +7,9 @@ type putItemRequest struct {
 	ConditionExpression string `json:",omitempty"`
 	expressionAttributes
 
-	// TODO ReturnConsumedCapacity string
 	// TODO ReturnItemCollectionMetrics
-	ReturnValues ReturnValues `json:",omitempty"`
+	ReturnConsumedCapacity CapacityDetail `json:",omitempty"`
+	ReturnValues           ReturnValues   `json:",omitempty"`
 }
 
 func newPutItem(client *Client, table string, item Document) *PutItem {
@@ -45,6 +45,11 @@ func (p PutItem) Params(params ...Params) *PutItem {
 	return &p
 }
 
+func (p PutItem) ReturnConsumedCapacity(consumedCapacity CapacityDetail) *PutItem {
+	p.req.ReturnConsumedCapacity = consumedCapacity
+	return &p
+}
+
 // Set ReturnValues.
 func (p PutItem) ReturnValues(returnValues ReturnValues) *PutItem {
 	p.req.ReturnValues = returnValues
@@ -61,7 +66,7 @@ func (p *PutItem) Execute() (res *PutItemResult, err error) {
 }
 
 func (e *AwsExecutor) PutItem(p *PutItem) (res *PutItemResult, err error) {
-	if p.req.ReturnValues != ReturnNone && p.req.ReturnValues != "" {
+	if (p.req.ReturnValues != ReturnNone && p.req.ReturnValues != "") || p.req.ReturnConsumedCapacity != "" {
 		err = e.MakeRequestUnmarshal("PutItem", &p.req, &res)
 	} else {
 		_, err = e.makeRequest("PutItem", &p.req)
@@ -70,5 +75,6 @@ func (e *AwsExecutor) PutItem(p *PutItem) (res *PutItemResult, err error) {
 }
 
 type PutItemResult struct {
-	Attributes Document
+	Attributes       Document
+	ConsumedCapacity *ConsumedCapacity
 }

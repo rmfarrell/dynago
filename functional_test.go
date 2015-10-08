@@ -21,11 +21,18 @@ func (f *functional) setUp(t *testing.T) (*assert.Assertions, *dynago.Client) {
 	dynago.DebugFunc = t.Logf
 
 	if f.client == nil {
+		ge := func(key string, d string) string {
+			r := os.Getenv("DYNAGO_TEST_" + key)
+			if r == "" {
+				r = d
+			}
+			return r
+		}
 		endpoint := os.Getenv("DYNAGO_TEST_ENDPOINT")
 		if endpoint == "" {
 			t.SkipNow()
 		}
-		executor := dynago.NewAwsExecutor(endpoint, "us-east-1", "AKIAEXAMPLE", "SECRETEXAMPLE")
+		executor := dynago.NewAwsExecutor(endpoint, ge("REGION", "us-east-1"), ge("ACCESS_KEY", "AKIAEXAMPLE"), ge("SECRET_KEY", "SECRETEXAMPLE"))
 		f.client = dynago.NewClient(executor)
 		makeTables(t, f.client)
 

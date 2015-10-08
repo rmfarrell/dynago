@@ -7,9 +7,9 @@ type deleteItemRequest struct {
 	ConditionExpression string `json:",omitempty"`
 	expressionAttributes
 
-	// TODO ReturnConsumedCapacity string
 	// TODO ReturnItemCollectionMetrics
-	ReturnValues ReturnValues `json:",omitempty"`
+	ReturnConsumedCapacity CapacityDetail `json:",omitempty"`
+	ReturnValues           ReturnValues   `json:",omitempty"`
 }
 
 func newDeleteItem(client *Client, table string, key Document) *DeleteItem {
@@ -31,6 +31,11 @@ type DeleteItem struct {
 func (d DeleteItem) ConditionExpression(expression string, params ...Params) *DeleteItem {
 	d.req.ConditionExpression = expression
 	d.req.paramsHelper(params)
+	return &d
+}
+
+func (d DeleteItem) ReturnConsumedCapacity(consumedCapacity CapacityDetail) *DeleteItem {
+	d.req.ReturnConsumedCapacity = consumedCapacity
 	return &d
 }
 

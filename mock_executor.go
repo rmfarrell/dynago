@@ -105,6 +105,8 @@ type MockExecutorCall struct {
 
 	BatchWrites BatchWriteTableMap
 	BatchGets   BatchGetTableMap
+
+	ReturnConsumedCapacity CapacityDetail
 }
 
 func (e *MockExecutor) BatchGetItem(batchGet *BatchGet) (*BatchGetResult, error) {
@@ -112,6 +114,8 @@ func (e *MockExecutor) BatchGetItem(batchGet *BatchGet) (*BatchGetResult, error)
 	e.addCall(&e.BatchGetItemCall, MockExecutorCall{
 		Method:    "BatchGetItem",
 		BatchGets: batchGet.buildTableMap(),
+
+		ReturnConsumedCapacity: batchGet.capacityDetail,
 	})
 	return e.BatchGetItemResult, nil
 }
@@ -121,6 +125,8 @@ func (e *MockExecutor) BatchWriteItem(batchWrite *BatchWrite) (*BatchWriteResult
 	e.addCall(&e.BatchWriteItemCall, MockExecutorCall{
 		Method:      "BatchWriteItem",
 		BatchWrites: batchWrite.buildTableMap(),
+
+		ReturnConsumedCapacity: batchWrite.capacityDetail,
 	})
 
 	return &BatchWriteResult{}, e.BatchWriteItemError
@@ -135,6 +141,7 @@ func (e *MockExecutor) DeleteItem(deleteItem *DeleteItem) (*DeleteItemResult, er
 		ConditionExpression:       deleteItem.req.ConditionExpression,
 		ExpressionAttributeNames:  deleteItem.req.ExpressionAttributeNames,
 		ExpressionAttributeValues: deleteItem.req.ExpressionAttributeValues,
+		ReturnConsumedCapacity:    deleteItem.req.ReturnConsumedCapacity,
 		ReturnValues:              deleteItem.req.ReturnValues,
 	})
 	return e.DeleteItemResult, e.DeleteItemError
@@ -150,9 +157,9 @@ func (e *MockExecutor) GetItem(getItem *GetItem) (*GetItemResult, error) {
 		ExpressionAttributeValues: getItem.req.ExpressionAttributeValues,
 		ExpressionAttributeNames:  getItem.req.ExpressionAttributeNames,
 		ProjectionExpression:      getItem.req.ProjectionExpression,
+		ReturnConsumedCapacity:    getItem.req.ReturnConsumedCapacity,
 	}
-	e.GetItemCall = &call
-	e.Calls = append(e.Calls, call)
+	e.addCall(&e.GetItemCall, call)
 	return e.GetItemResult, e.GetItemError
 }
 
@@ -166,9 +173,9 @@ func (e *MockExecutor) PutItem(putItem *PutItem) (*PutItemResult, error) {
 		ConditionExpression:       putItem.req.ConditionExpression,
 		ExpressionAttributeNames:  putItem.req.ExpressionAttributeNames,
 		ExpressionAttributeValues: putItem.req.ExpressionAttributeValues,
+		ReturnConsumedCapacity:    putItem.req.ReturnConsumedCapacity,
 	}
-	e.PutItemCall = &call
-	e.Calls = append(e.Calls, call)
+	e.addCall(&e.PutItemCall, call)
 	return e.PutItemResult, e.PutItemError
 }
 
@@ -195,6 +202,7 @@ func callFromQueryReq(req queryRequest) MockExecutorCall {
 		ConsistentRead:            consistent,
 		Limit:                     req.Limit,
 		ExclusiveStartKey:         req.ExclusiveStartKey,
+		ReturnConsumedCapacity:    req.ReturnConsumedCapacity,
 	}
 }
 

@@ -55,6 +55,11 @@ func (s Scan) ProjectionExpression(expression string, params ...Params) *Scan {
 	return &s
 }
 
+func (s Scan) ReturnConsumedCapacity(consumedCapacity CapacityDetail) *Scan {
+	s.req.ReturnConsumedCapacity = consumedCapacity
+	return &s
+}
+
 // Choose the parallel segment of the table to scan.
 func (s Scan) Segment(segment, total int) *Scan {
 	s.req.Segment = &segment
@@ -89,6 +94,7 @@ type ScanResult struct {
 	req              *Scan
 	Items            []Document
 	LastEvaluatedKey Document
+	ConsumedCapacity *ConsumedCapacity
 }
 
 /*
