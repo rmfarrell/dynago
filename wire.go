@@ -47,6 +47,8 @@ func wireEncode(value interface{}) interface{} {
 		return &wireNumber{strconv.FormatInt(anyInt(v), 10)}
 	case uint, uint64, uint32, uint16, uint8:
 		return &wireNumber{strconv.FormatUint(anyUint(v), 10)}
+	case nil:
+		return &wireNull{true}
 	case time.Time:
 		return wireEncodeTime(v)
 	case *time.Time:
@@ -98,6 +100,10 @@ type wireList struct {
 
 type wireMap struct {
 	M map[string]interface{}
+}
+
+type wireNull struct {
+	NULL bool
 }
 
 func wireDecode(original interface{}) interface{} {

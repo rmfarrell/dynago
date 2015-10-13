@@ -34,6 +34,9 @@ func TestWireEncodeBasic(t *testing.T) {
 	binaries := [][]byte{[]byte{'A', 'B'}, []byte{'C', 'D'}}
 	check(wireBinarySet{binaries}, BinarySet(binaries), `{"BS":["QUI=","Q0Q="]}`)
 
+	// Nils
+	check(wireNull{true}, nil, `{"NULL":true}`)
+
 	// Numbers
 	check(wireNumber{"7"}, int(7), `{"N":"7"}`)
 	check(wireNumber{"-45"}, int64(-45), `{"N":"-45"}`)

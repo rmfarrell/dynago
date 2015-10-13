@@ -1,9 +1,10 @@
 package dynago_test
 
 import (
-	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 
 	"gopkg.in/underarmour/dynago.v1"
 	"gopkg.in/underarmour/dynago.v1/schema"
@@ -285,7 +286,10 @@ func TestDescribeTable(t *testing.T) {
 
 func TestPutItemReturnValues(t *testing.T) {
 	assert, client := funcTest.setUp(t)
-	doc := dynago.Document{"UserId": 50, "Dated": 2, "Title": "abc"}
+	doc := dynago.Document{
+		"UserId": 50, "Dated": 2, "Title": "abc",
+		"List": dynago.List{"abc", nil, "def"},
+	}
 	response, err := client.PutItem("Posts", doc).Execute()
 	assert.Nil(response)
 	assert.NoError(err)
@@ -298,6 +302,7 @@ func TestPutItemReturnValues(t *testing.T) {
 	assert.NoError(err)
 	assert.NotNil(response)
 	assert.Equal("abc", response.Attributes["Title"])
+	assert.Equal(dynago.List{"abc", nil, "def"}, response.Attributes["List"])
 }
 
 func TestQueryPagination(t *testing.T) {
