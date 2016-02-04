@@ -27,7 +27,7 @@ Example
 Run a query:
 
 ```go
-client := dynago.NewAwsClient(endpoint, accessKey, secretKey)
+client := dynago.NewAwsClient(region, accessKey, secretKey)
 
 query := client.Query(table).
 	KeyConditionExpression("UserId = :uid", dynago.Param{":uid", 42}).
