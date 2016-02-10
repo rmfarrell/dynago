@@ -22,6 +22,7 @@ func newPutItem(client *Client, table string, item Document) *PutItem {
 	}
 }
 
+// PutItem is used to create/replace single items in the table.
 type PutItem struct {
 	client *Client
 	req    putItemRequest
@@ -34,17 +35,19 @@ func (p PutItem) ConditionExpression(expression string, params ...Params) *PutIt
 	return &p
 }
 
-// Set parameter for ConditionExpression
+// Param is a shortcut to set a single bound parameter.
 func (p PutItem) Param(key string, value interface{}) *PutItem {
 	p.req.paramHelper(key, value)
 	return &p
 }
 
+// Params sets multiple bound parameters on this query.
 func (p PutItem) Params(params ...Params) *PutItem {
 	p.req.paramsHelper(params)
 	return &p
 }
 
+// ReturnConsumedCapacity enables capacity reporting on this PutItem.
 func (p PutItem) ReturnConsumedCapacity(consumedCapacity CapacityDetail) *PutItem {
 	p.req.ReturnConsumedCapacity = consumedCapacity
 	return &p

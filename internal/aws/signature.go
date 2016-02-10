@@ -1,5 +1,5 @@
 /*
-Provide AWS signature and other AWS-specific auth functions.
+Package aws handles AWS signature v4 and other AWS-specific auth functions.
 
 This package is internalized because we don't want to have the interface
 of methodology such as request signing to have to be solidified
@@ -18,8 +18,10 @@ import (
 	"time"
 )
 
+const algorithm = "AWS4-HMAC-SHA256"
+
 /*
-The functions in this file implement the AWS v4 request signing algorithm.
+AwsSigner signs requests with the AWS v4 request signing algorithm.
 
 This is required for all aws requests to ensure:
 
@@ -27,9 +29,6 @@ This is required for all aws requests to ensure:
 	2. It also prevents replay attacks
 	3. It also handles authentication without sending or revealing the shared secret
 */
-
-const algorithm = "AWS4-HMAC-SHA256"
-
 type AwsSigner struct {
 	AccessKey string
 	SecretKey string

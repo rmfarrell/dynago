@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"gopkg.in/underarmour/dynago.v1"
+	dynago "gopkg.in/underarmour/dynago.v1"
 	"gopkg.in/underarmour/dynago.v1/schema"
 )
 

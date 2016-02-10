@@ -1,13 +1,16 @@
 package dynago
 
+// CapacityDetail describes what kind of ConsumedCapacity response to get.
 type CapacityDetail string
 
+// Define all the ways you can request consumed capacity.
 const (
 	CapacityIndexes CapacityDetail = "INDEXES"
 	CapacityTotal   CapacityDetail = "TOTAL"
 	CapacityNone    CapacityDetail = "NONE"
 )
 
+// Select describes which attributes to return in Scan and Query operations.
 type Select string
 
 const (
@@ -17,6 +20,7 @@ const (
 	SelectSpecificAttributes Select = "SPECIFIC_ATTRIBUTES"
 )
 
+// ReturnValues enable returning some or all changed data from put operations.
 type ReturnValues string
 
 const (
@@ -27,6 +31,7 @@ const (
 	ReturnUpdatedNew ReturnValues = "UPDATED_NEW"
 )
 
+// DebugFlags controls Dynago debugging
 type DebugFlags uint
 
 const (

@@ -1,5 +1,6 @@
 package schema
 
+// CreateRequest is the request to create a new DynamoDB table.
 type CreateRequest struct {
 	TableName              string
 	AttributeDefinitions   []AttributeDefinition
@@ -24,7 +25,7 @@ func (r *CreateRequest) HashKey(name string, attributeType AttributeType) *Creat
 	return r
 }
 
-// Simple way to add a hash key and attribute definition in one go.
+// RangeKey is a simple way to add a hash key and attribute definition in one go.
 func (r *CreateRequest) RangeKey(name string, attributeType AttributeType) *CreateRequest {
 	r.ensureAttribute(name, attributeType)
 	r.KeySchema = append(r.KeySchema, KeySchema{name, RangeKey})
@@ -40,28 +41,34 @@ func (r *CreateRequest) ensureAttribute(name string, attributeType AttributeType
 	r.AttributeDefinitions = append(r.AttributeDefinitions, AttributeDefinition{name, attributeType})
 }
 
+// CreateResult describes the table created
 type CreateResult struct {
 	TableDescription TableDescription
 }
 
+// DeleteRequest asks to delete a DynamoDB table
 type DeleteRequest struct {
 	TableName string
 }
 
+// DeleteResult describes the table deleted
 type DeleteResult struct {
 	TableDescription TableDescription
 }
 
+// ListRequest asks to list all tables on the current account.
 type ListRequest struct {
 	ExclusiveStartTableName string `json:",omitempty"`
 	Limit                   uint   `json:",omitempty"`
 }
 
+// ListResponse is the response of table list request.
 type ListResponse struct {
 	LastEvaluatedTableName *string
 	TableNames             []string
 }
 
+// DescribeRequest gives details about a single table.
 type DescribeRequest struct {
 	TableName string
 }

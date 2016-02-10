@@ -1,4 +1,4 @@
-// package dynamodb maps information from dynamo itself, such as error tables and formats.
+// Package dynamodb maps information from dynamo itself, such as error tables and formats.
 // This is an internal package to allow fast iteration on the abstraction
 // without having to commit to the interface.
 package dynamodb

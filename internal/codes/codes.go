@@ -1,7 +1,8 @@
-// package codes defines the error types dynago maps.
+//go:generate stringer -type=ErrorCode
+
+// Package codes defines the error types dynago maps.
 // This is an internal package to allow fast iteration on the abstraction
 // without having to commit to the interface.
-//go:generate stringer -type=ErrorCode
 package codes
 
 type ErrorCode int

@@ -82,7 +82,7 @@ func TestListAsDocumentListReturnsAnErrorIfThereAreNonDocuments(t *testing.T) {
 func TestListAsDocumentListReturnsTheDocumentsUpToTheFirstNonDocument(t *testing.T) {
 	list := dynago.List{dynago.Document{"real": "item"}, "imnotadocument", dynago.Document{"i won't": "show up"}}
 	docList, _ := list.AsDocumentList()
-	assert.Equal(t, []dynago.Document{dynago.Document{"real": "item"}}, docList)
+	assert.Equal(t, []dynago.Document{{"real": "item"}}, docList)
 }
 
 func TestDocumentGetStringReturnsTheUnderlyingValueAsAString(t *testing.T) {

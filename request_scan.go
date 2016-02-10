@@ -17,7 +17,7 @@ func newScan(c *Client, table string) *Scan {
 }
 
 /*
-Set the start key (effectively the offset cursor).
+ExclusiveStartKey sets the start key (effectively the offset cursor).
 */
 func (s Scan) ExclusiveStartKey(key Document) *Scan {
 	s.req.ExclusiveStartKey = key
@@ -25,7 +25,7 @@ func (s Scan) ExclusiveStartKey(key Document) *Scan {
 }
 
 /*
-Set a filter expression on this scan.
+FilterExpression post-filters results on this scan.
 
 Scans with a FilterExpression may return 0 results due to scanning past
 records which don't match the filter, but still have more results to get.
@@ -36,31 +36,32 @@ func (s Scan) FilterExpression(expression string, params ...Params) *Scan {
 	return &s
 }
 
-// Run this scan on an index of a table.
+// IndexName specifies a secondary index to scan instead of a table.
 func (s Scan) IndexName(name string) *Scan {
 	s.req.IndexName = name
 	return &s
 }
 
-// Maximum number of results to return per call.
+// Limit the maximum number of results to return per call.
 func (s Scan) Limit(limit uint) *Scan {
 	s.req.Limit = limit
 	return &s
 }
 
-// Set which keys are used on this scan.
+// ProjectionExpression allows the client to specify which attributes are returned.
 func (s Scan) ProjectionExpression(expression string, params ...Params) *Scan {
 	s.req.ProjectionExpression = expression
 	s.req.paramsHelper(params)
 	return &s
 }
 
+// ReturnConsumedCapacity enables capacity reporting on this Query.
 func (s Scan) ReturnConsumedCapacity(consumedCapacity CapacityDetail) *Scan {
 	s.req.ReturnConsumedCapacity = consumedCapacity
 	return &s
 }
 
-// Choose the parallel segment of the table to scan.
+// Segment chooses the parallel segment of the table to scan.
 func (s Scan) Segment(segment, total int) *Scan {
 	s.req.Segment = &segment
 	s.req.TotalSegments = &total
@@ -79,17 +80,19 @@ func (s Scan) Select(value Select) *Scan {
 	return &s
 }
 
-// Execute this scan query.
+// Execute this Scan query.
 func (s *Scan) Execute() (*ScanResult, error) {
 	return s.client.executor.Scan(s)
 }
 
+// Scan operation
 func (e *AwsExecutor) Scan(s *Scan) (result *ScanResult, err error) {
 	result = &ScanResult{req: s}
 	err = e.MakeRequestUnmarshal("Scan", s.req, &result)
 	return
 }
 
+// ScanResult is the result of Scan queries.
 type ScanResult struct {
 	req              *Scan
 	Items            []Document
@@ -98,7 +101,7 @@ type ScanResult struct {
 }
 
 /*
-Helper to get the scan query representing the next page of results.
+Next returns a scan which get the next page of results when executed.
 
 If the scan has a LastEvaluatedKey, returns another Scan. Otherwise, returns nil.
 */

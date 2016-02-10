@@ -28,11 +28,13 @@ func newQuery(client *Client, table string) *Query {
 	return &Query{client, req}
 }
 
+// Query is used to return items in the same hash key.
 type Query struct {
 	client *Client
 	req    queryRequest
 }
 
+// IndexName specifies to query via a secondary index instead of the table's primary key.
 func (q Query) IndexName(name string) *Query {
 	q.req.IndexName = name
 	return &q
@@ -44,40 +46,40 @@ func (q Query) ConsistentRead(strong bool) *Query {
 	return &q
 }
 
-// Set a post-filter expression for the results we scan.
+// FilterExpression sets a post-filter expression for the results we scan.
 func (q Query) FilterExpression(expression string, params ...Params) *Query {
 	q.req.paramsHelper(params)
 	q.req.FilterExpression = expression
 	return &q
 }
 
-// Set a condition expression on the key to narrow down what we scan
+// KeyConditionExpression sets a condition expression on the key to narrow down what we scan.
 func (q Query) KeyConditionExpression(expression string, params ...Params) *Query {
 	q.req.paramsHelper(params)
 	q.req.KeyConditionExpression = expression
 	return &q
 }
 
-// Set a Projection Expression for controlling which attributes are returned.
+// ProjectionExpression allows the client to specify which attributes are returned.
 func (q Query) ProjectionExpression(expression string, params ...Params) *Query {
 	q.req.paramsHelper(params)
 	q.req.ProjectionExpression = expression
 	return &q
 }
 
-// Shortcut to set a single parameter for ExpressionAttributeValues.
+// Param is a shortcut to set a single bound parameter.
 func (q Query) Param(key string, value interface{}) *Query {
 	q.req.paramHelper(key, value)
 	return &q
 }
 
-// Set a param, a document of params, or multiple params
+// Params sets multiple bound parameters on this query.
 func (q Query) Params(params ...Params) *Query {
 	q.req.paramsHelper(params)
 	return &q
 }
 
-// Specify you want consumed capacity information in the response.
+// ReturnConsumedCapacity enables capacity reporting on this Query.
 // Defaults to CapacityNone if not set
 func (q Query) ReturnConsumedCapacity(consumedCapacity CapacityDetail) *Query {
 	q.req.ReturnConsumedCapacity = consumedCapacity
@@ -106,7 +108,8 @@ func (q Query) ScanIndexForward(forward bool) *Query {
 	return &q
 }
 
-// Return results descending. Equivalent to q.ScanIndexForward(false)
+// Desc makes this query return results descending.
+// Equivalent to q.ScanIndexForward(false)
 func (q *Query) Desc() *Query {
 	return q.ScanIndexForward(false)
 }
@@ -136,6 +139,7 @@ func (q *Query) Execute() (result *QueryResult, err error) {
 	return q.client.executor.Query(q)
 }
 
+// Query execution logic
 func (e *AwsExecutor) Query(q *Query) (result *QueryResult, err error) {
 	err = e.MakeRequestUnmarshal("Query", &q.req, &result)
 	if err == nil {
@@ -144,7 +148,7 @@ func (e *AwsExecutor) Query(q *Query) (result *QueryResult, err error) {
 	return
 }
 
-// The result returned from a query.
+// QueryResult is the result returned from a query.
 type QueryResult struct {
 	query            *Query
 	Items            []Document // All the items in the result
@@ -156,7 +160,7 @@ type QueryResult struct {
 	ConsumedCapacity *ConsumedCapacity
 }
 
-// Helper for getting a query which will get the next page of results.
+// Next returns a query which get the next page of results when executed.
 // Returns nil if there's no next page.
 func (qr *QueryResult) Next() (query *Query) {
 	if qr.LastEvaluatedKey != nil && len(qr.LastEvaluatedKey) > 0 {

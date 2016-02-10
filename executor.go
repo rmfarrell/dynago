@@ -8,7 +8,7 @@ import (
 )
 
 /*
-This interface defines how all the various queries manage their internal execution logic.
+Executor defines how all the various queries manage their internal execution logic.
 
 Executor is primarily provided so that testing and mocking can be done on
 the API level, not just the transport level.
@@ -27,6 +27,7 @@ type Executor interface {
 	SchemaExecutor() SchemaExecutor
 }
 
+// SchemaExecutors implement schema management commands.
 type SchemaExecutor interface {
 	CreateTable(*schema.CreateRequest) (*schema.CreateResult, error)
 	DeleteTable(*schema.DeleteRequest) (*schema.DeleteResult, error)
@@ -58,8 +59,7 @@ func NewAwsExecutor(endpoint, region, accessKey, secretKey string) *AwsExecutor 
 }
 
 /*
-The AwsExecutor is the actual underlying implementation that turns dynago
-request structs and makes actual queries.
+AwsExecutor is the underlying implementation of making requests to DynamoDB.
 */
 type AwsExecutor struct {
 	// Underlying implementation that makes requests for this executor. It
@@ -93,6 +93,7 @@ func (e *AwsExecutor) MakeRequestUnmarshal(method string, document interface{}, 
 	return
 }
 
+// Return a SchemaExecutor making requests on this Executor.
 func (e *AwsExecutor) SchemaExecutor() SchemaExecutor {
 	return awsSchemaExecutor{e}
 }

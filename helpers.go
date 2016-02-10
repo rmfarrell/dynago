@@ -66,7 +66,7 @@ func eaNameCopy(doc *map[string]string, extendBy int) {
 }
 
 /*
-Set the debug mode.
+Debug sets the debug mode.
 
 This is a set of bit-flags you can use to set up how much debugging dynago uses:
 
@@ -83,7 +83,7 @@ var DebugFunc func(format string, v ...interface{}) = func(format string, v ...i
 	log.Printf("Dynago DEBUG: "+format, v...)
 }
 
-// Convenience method to check if a value has a flag:
+// DebugFlags is a convenience method to check if a value has a flag:
 //    Debug.HasFlags(DebugRequests)
 func (v DebugFlags) HasFlag(flag DebugFlags) bool {
 	return (v & flag) != 0

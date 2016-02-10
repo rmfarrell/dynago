@@ -9,10 +9,16 @@ import (
 	"strings"
 )
 
-const DynamoTargetPrefix = "DynamoDB_20120810." // This is the Dynamo API version we support
-var MaxResponseSize int64 = 25 * 1024 * 1024    // 25MB maximum response
-var MaxResponseError = errors.New("Exceeded maximum response size of 25MB")
+// DynamoTargetPrefix is the Dynamo API version we support.
+const DynamoTargetPrefix = "DynamoDB_20120810."
 
+// MaxResponseSize is the maximum size of a response.
+var MaxResponseSize int64 = 25 * 1024 * 1024 // 25MB maximum response
+
+// ErrMaxResponse is returned when responses are too big.
+var ErrMaxResponse = errors.New("Exceeded maximum response size of 25MB")
+
+// A Signer's job is to perform API signing.
 type Signer interface {
 	SignRequest(*http.Request, []byte)
 }
@@ -77,7 +83,7 @@ func responseBytes(response *http.Response) (output []byte, err error) {
 		var n int64
 		n, err = io.Copy(&buffer, reader)
 		if n >= MaxResponseSize {
-			err = MaxResponseError
+			err = ErrMaxResponse
 		} else if err == nil {
 			output = buffer.Bytes()
 			err = response.Body.Close()

@@ -31,7 +31,7 @@ func TestWireEncodeBasic(t *testing.T) {
 
 	// Binary
 	check(wireBinary{[]byte{'A', 'B'}}, []byte{'A', 'B'}, `{"B":"QUI="}`)
-	binaries := [][]byte{[]byte{'A', 'B'}, []byte{'C', 'D'}}
+	binaries := [][]byte{{'A', 'B'}, {'C', 'D'}}
 	check(wireBinarySet{binaries}, BinarySet(binaries), `{"BS":["QUI=","Q0Q="]}`)
 
 	// Nils

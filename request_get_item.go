@@ -22,35 +22,39 @@ func newGetItem(client *Client, table string, key Document) *GetItem {
 	}
 }
 
+// GetItem is used to get a single item by key from the table.
 type GetItem struct {
 	client *Client
 	req    getItemRequest
 }
 
-// Set the ProjectionExpression for this GetItem (which attributes to get)
+// ProjectionExpression allows the client to specify which attributes are returned.
 func (p GetItem) ProjectionExpression(expression string, params ...Params) *GetItem {
 	p.req.ProjectionExpression = expression
 	p.req.paramsHelper(params)
 	return &p
 }
 
-// Shortcut to set an ExpressionAttributeValue for used in expression query
+// Param is a shortcut to set a single bound parameter.
 func (p GetItem) Param(key string, value interface{}) *GetItem {
 	p.req.paramHelper(key, value)
 	return &p
 }
 
+// Params sets multiple bound parameters on this query.
 func (p GetItem) Params(params ...Params) *GetItem {
 	p.req.paramsHelper(params)
 	return &p
 }
 
+// ReturnConsumedCapacity enables capacity reporting on this GetItem.
+// Defaults to CapacityNone if not set
 func (p GetItem) ReturnConsumedCapacity(consumedCapacity CapacityDetail) *GetItem {
 	p.req.ReturnConsumedCapacity = consumedCapacity
 	return &p
 }
 
-// Set up this get to be a strongly consistent read.
+// ConsistentRead enables strongly consistent reads if the argument is true.
 func (p GetItem) ConsistentRead(strong bool) *GetItem {
 	p.req.ConsistentRead = strong
 	return &p
@@ -61,12 +65,13 @@ func (p *GetItem) Execute() (result *GetItemResult, err error) {
 	return p.client.executor.GetItem(p)
 }
 
+// GetItem gets a single item.
 func (e *AwsExecutor) GetItem(g *GetItem) (result *GetItemResult, err error) {
 	err = e.MakeRequestUnmarshal("GetItem", &g.req, &result)
 	return
 }
 
-// The result from executing a GetItem.
+// GetItemResult is the result from executing a GetItem.
 type GetItemResult struct {
 	Item             Document
 	ConsumedCapacity *ConsumedCapacity

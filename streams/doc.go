@@ -1,5 +1,5 @@
 /*
-Provides DynamoDB streams support for Dynago.
+Package streams is a client for DynamoDB Streams within Dynago.
 
 This provides access to the DynamoDB streams API with all the conveniences
 that one would expect from using Dynago: document unmarshaling to go types,

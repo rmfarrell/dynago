@@ -6,18 +6,21 @@ type batchWriteItemRequest struct {
 	ReturnConsumedCapacity CapacityDetail `json:",omitempty"`
 }
 
+// BatchWriteTableMap describes writes where the key is the table and the value is the unprocessed items.
 type BatchWriteTableMap map[string][]*BatchWriteTableEntry
 
+// BatchWriteTableEntry is a single write or delete request.
 type BatchWriteTableEntry struct {
 	DeleteRequest *batchDelete `json:",omitempty"`
 	PutRequest    *batchPut    `json:",omitempty"`
 }
 
-// Set this table entry as a delete request
+// SetDelete sets this table entry as a delete request
 func (e *BatchWriteTableEntry) SetDelete(key Document) {
 	e.DeleteRequest = &batchDelete{key}
 }
 
+// SetPut sets this table entry as a put request
 func (e *BatchWriteTableEntry) SetPut(item Document) {
 	e.PutRequest = &batchPut{item}
 }
@@ -42,6 +45,7 @@ func newBatchWrite(client *Client) *BatchWrite {
 	}
 }
 
+// BatchWrite allows writing many items in a single roundtrip to DynamoDB.
 type BatchWrite struct {
 	client  *Client
 	puts    *batchAction
@@ -51,7 +55,7 @@ type BatchWrite struct {
 }
 
 /*
-Add some number of puts for a table.
+Put queues up some number of puts to a table.
 */
 func (b BatchWrite) Put(table string, items ...Document) *BatchWrite {
 	addBatchActions(&b.puts, table, items)
@@ -59,18 +63,20 @@ func (b BatchWrite) Put(table string, items ...Document) *BatchWrite {
 }
 
 /*
-Add some number of deletes for a table.
+Delete queues some number of deletes for a table.
 */
 func (b BatchWrite) Delete(table string, keys ...Document) *BatchWrite {
 	addBatchActions(&b.deletes, table, keys)
 	return &b
 }
 
+// ReturnConsumedCapacity enables capacity reporting on this Query.
 func (b BatchWrite) ReturnConsumedCapacity(consumedCapacity CapacityDetail) *BatchWrite {
 	b.capacityDetail = consumedCapacity
 	return &b
 }
 
+// Execute the writes in this batch.
 func (b *BatchWrite) Execute() (*BatchWriteResult, error) {
 	return b.client.executor.BatchWriteItem(b)
 }
@@ -94,6 +100,7 @@ func (b *BatchWrite) buildTableMap() (m BatchWriteTableMap) {
 	return
 }
 
+// BatchWriteItem executes multiple puts/deletes in a single roundtrip.
 func (e *AwsExecutor) BatchWriteItem(b *BatchWrite) (result *BatchWriteResult, err error) {
 	req := batchWriteItemRequest{
 		RequestItems:           b.buildTableMap(),
@@ -104,6 +111,7 @@ func (e *AwsExecutor) BatchWriteItem(b *BatchWrite) (result *BatchWriteResult, e
 	return
 }
 
+// BatchWriteResult explains what happened in a batch write.
 type BatchWriteResult struct {
 	UnprocessedItems BatchWriteTableMap
 	ConsumedCapacity BatchConsumedCapacity
@@ -133,6 +141,7 @@ type BatchGetTableEntry struct {
 	ConsistentRead       bool   `json:",omitempty"`
 }
 
+// BatchGet allows getting multiple items by key from a table.
 type BatchGet struct {
 	client  *Client
 	gets    *batchAction
@@ -142,7 +151,7 @@ type BatchGet struct {
 }
 
 /*
-Set which keys to get.
+Get queues some gets for a table.
 Can be called multiple times to queue up gets for multiple tables.
 */
 func (b BatchGet) Get(table string, keys ...Document) *BatchGet {
@@ -151,7 +160,7 @@ func (b BatchGet) Get(table string, keys ...Document) *BatchGet {
 }
 
 /*
-Add a ProjectionExpression for a table.
+ProjectionExpression allows the client to specify attributes returned for a table.
 
 Projection expression is scoped to each table, and must be called for each
 table on which you want a ProjectionExpression.
@@ -166,7 +175,7 @@ func (b BatchGet) ProjectionExpression(table string, expression string, params .
 }
 
 /*
-Set consistent read mode for a table.
+ConsistentRead enables strongly consistent reads per-table.
 
 Consistent read is scoped to each table, so must be called for each table in
 this BatchGet for which you want consistent reads.
@@ -179,6 +188,7 @@ func (b BatchGet) ConsistentRead(table string, consistent bool) *BatchGet {
 	return &b
 }
 
+// ReturnConsumedCapacity enables capacity reporting on this BatchGet
 func (b BatchGet) ReturnConsumedCapacity(consumedCapacity CapacityDetail) *BatchGet {
 	b.capacityDetail = consumedCapacity
 	return &b
@@ -218,6 +228,7 @@ func (b *BatchGet) Execute() (result *BatchGetResult, err error) {
 	return b.client.executor.BatchGetItem(b)
 }
 
+// BatchGetItem gets multiple keys.
 func (e *AwsExecutor) BatchGetItem(b *BatchGet) (result *BatchGetResult, err error) {
 	req := batchGetItemRequest{
 		RequestItems:           b.buildTableMap(),
@@ -227,6 +238,7 @@ func (e *AwsExecutor) BatchGetItem(b *BatchGet) (result *BatchGetResult, err err
 	return
 }
 
+// BatchGetResult is the result of a batch get.
 type BatchGetResult struct {
 	// Responses to the Batch Get query which were resolved.
 	// Note that the order of documents is not guaranteed to be the same as
