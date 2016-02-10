@@ -121,11 +121,11 @@ func (c *Client) CreateTable(req *schema.CreateRequest) (*schema.CreateResult, e
 
 // Delete a table.
 func (c *Client) DeleteTable(table string) (*schema.DeleteResult, error) {
-	return c.schemaExecutor.DeleteTable(&schema.DeleteRequest{table})
+	return c.schemaExecutor.DeleteTable(&schema.DeleteRequest{TableName: table})
 }
 
 func (c *Client) DescribeTable(table string) (*schema.DescribeResponse, error) {
-	return c.schemaExecutor.DescribeTable(&schema.DescribeRequest{table})
+	return c.schemaExecutor.DescribeTable(&schema.DescribeRequest{TableName: table})
 }
 
 func (c *Client) ListTables() *ListTables {

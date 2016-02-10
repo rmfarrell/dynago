@@ -47,7 +47,7 @@ func TestDescribeStreamEncode(t *testing.T) {
 	assert.Equal("My Stream", sd.StreamLabel)
 	assert.Equal("bar", sd.TableName)
 	assert.Equal(2, len(sd.KeySchema))
-	assert.Equal(schema.KeySchema{"Id", "HASH"}, sd.KeySchema[0])
+	assert.Equal(schema.KeySchema{AttributeName: "Id", KeyType: schema.HashKey}, sd.KeySchema[0])
 	assert.Equal(1, len(sd.Shards))
 	assert.Equal("foo-bar-baz", sd.Shards[0].ShardId)
 	assert.Equal("string", sd.Shards[0].ParentShardId)

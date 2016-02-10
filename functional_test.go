@@ -80,26 +80,26 @@ func complexIndexedSchema() *schema.CreateRequest {
 			{"UserId", schema.HashKey},
 			{"Id", schema.RangeKey},
 		},
-		ProvisionedThroughput: schema.ProvisionedThroughput{1, 1},
+		ProvisionedThroughput: schema.NewThroughput(1, 1),
 		GlobalSecondaryIndexes: []schema.SecondaryIndex{
 			{
 				IndexName:  "index1",
-				Projection: schema.Projection{schema.ProjectAll, nil},
+				Projection: schema.NewProjection(schema.ProjectAll),
 				KeySchema: []schema.KeySchema{
 					{"Id", schema.HashKey},
 				},
-				ProvisionedThroughput: schema.ProvisionedThroughput{1, 1},
+				ProvisionedThroughput: schema.NewThroughput(1, 1),
 			},
 		},
 		LocalSecondaryIndexes: []schema.SecondaryIndex{
 			{
 				IndexName:  "index2",
-				Projection: schema.Projection{schema.ProjectInclude, []string{"Foo", "Bar"}},
+				Projection: schema.NewProjection(schema.ProjectInclude, "Foo", "Bar"),
 				KeySchema: []schema.KeySchema{
 					{"UserId", schema.HashKey},
 					{"Dated", schema.RangeKey},
 				},
-				ProvisionedThroughput: schema.ProvisionedThroughput{1, 1},
+				ProvisionedThroughput: schema.NewThroughput(1, 1),
 			},
 		},
 		StreamSpecification: &schema.StreamSpecification{

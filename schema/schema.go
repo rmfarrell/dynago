@@ -46,6 +46,11 @@ type ProvisionedThroughput struct {
 	WriteCapacityUnits uint
 }
 
+// NewThroughput is a shortcut to create a ProvisionedThroughput without using unkeyed literals.
+func NewThroughput(read, write uint) ProvisionedThroughput {
+	return ProvisionedThroughput{read, write}
+}
+
 type AttributeDefinition struct {
 	AttributeName string
 	AttributeType AttributeType
@@ -66,6 +71,14 @@ type SecondaryIndex struct {
 type Projection struct {
 	ProjectionType   ProjectionType
 	NonKeyAttributes []string `json:",omitempty"`
+}
+
+// NewProjection is a future-safe way to create a projection
+func NewProjection(projectionType ProjectionType, nonkeys ...string) Projection {
+	return Projection{
+		ProjectionType:   projectionType,
+		NonKeyAttributes: nonkeys,
+	}
 }
 
 // Secondary indexes as described in table descriptions
