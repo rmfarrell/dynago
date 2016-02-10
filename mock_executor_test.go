@@ -19,7 +19,7 @@ func TestMockExecutorBatchGetItem(t *testing.T) {
 	key1, key2 := dynago.HashKey("Id", 3), dynago.HashKey("Id", 4)
 	client.BatchGet().
 		Get("table1", key1, key2).
-		ProjectionExpression("table1", "#n,Foo,Bar", dynago.Param{"#n", "Name"}).
+		ProjectionExpression("table1", "#n,Foo,Bar", dynago.P("#n", "Name")).
 		Get("table2", key2).
 		Execute()
 	assert.Equal(true, executor.BatchGetItemCalled)
@@ -56,7 +56,7 @@ func TestMockExecutorBatchWriteItem(t *testing.T) {
 func TestMockExecutorDeleteItem(t *testing.T) {
 	assert, client, executor := mockSetup(t)
 	client.DeleteItem("table1", dynago.HashKey("Id", 51)).
-		ConditionExpression("expr1", dynago.Param{":foo", 4}, dynago.Param{"#f", "f"}).
+		ConditionExpression("expr1", dynago.P(":foo", 4), dynago.P("#f", "f")).
 		ReturnValues(dynago.ReturnAllOld).
 		Execute()
 	assert.Equal(true, executor.DeleteItemCalled)
@@ -109,7 +109,7 @@ func TestMockExecutorQuery(t *testing.T) {
 	client.Query("table3").IndexName("Index1").
 		ConsistentRead(true).
 		KeyConditionExpression("ABC = :def").
-		FilterExpression("Foo > :param", dynago.Param{":param", 95}).
+		FilterExpression("Foo > :param", dynago.P(":param", 95)).
 		Limit(50).Select(dynago.SelectSpecificAttributes).
 		Execute()
 	assert.Equal(true, executor.QueryCalled)
@@ -144,8 +144,8 @@ func TestMockExecutorScan(t *testing.T) {
 	assert, client, executor := mockSetup(t)
 	scan := client.Scan("table5").
 		ExclusiveStartKey(dynago.HashKey("Id", 2)).
-		FilterExpression("Foo = :bar", dynago.Param{":bar", 10}).
-		ProjectionExpression("Foo, Bar, #baz", dynago.Param{"#baz", "Baz"}).
+		FilterExpression("Foo = :bar", dynago.P(":bar", 10)).
+		ProjectionExpression("Foo, Bar, #baz", dynago.P("#baz", "Baz")).
 		IndexName("index5")
 	scan.Execute()
 	assert.Equal(true, executor.ScanCalled)

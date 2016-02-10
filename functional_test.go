@@ -132,7 +132,7 @@ func TestDeleteItem_functional(t *testing.T) {
 
 	key := dynago.HashKey("Id", 47)
 	di := client.DeleteItem("Person", key).
-		ConditionExpression("#n <> :name", dynago.Param{"#n", "Name"}, dynago.Param{":name", "Mary"}).
+		ConditionExpression("#n <> :name", dynago.P("#n", "Name"), dynago.P(":name", "Mary")).
 		ReturnValues(dynago.ReturnAllOld)
 	result, err := di.Execute()
 	assert.Nil(result)
@@ -140,7 +140,7 @@ func TestDeleteItem_functional(t *testing.T) {
 	e := err.(*dynago.Error)
 	assert.Equal(dynago.ErrorConditionFailed, e.Type)
 
-	result, err = di.ConditionExpression("#n <> :name", dynago.Param{":name", "Albert"}).Execute()
+	result, err = di.ConditionExpression("#n <> :name", dynago.P(":name", "Albert")).Execute()
 	assert.NoError(err)
 	assert.NotNil(result)
 	doc := dynago.Document{"Name": "Mary", "IncVal": dynago.Number("1"), "Id": dynago.Number("47")}
@@ -318,8 +318,8 @@ func TestQueryPagination(t *testing.T) {
 
 	// Paginate the posts
 	q := client.Query("Posts").
-		KeyConditionExpression("UserId = :uid", dynago.Param{":uid", 42}).
-		FilterExpression("Dated <> :d", dynago.Param{":d", 101}).
+		KeyConditionExpression("UserId = :uid", dynago.P(":uid", 42)).
+		FilterExpression("Dated <> :d", dynago.P(":d", 101)).
 		Limit(10)
 	results, err := q.Execute()
 	assert.NoError(err)

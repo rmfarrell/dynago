@@ -235,6 +235,12 @@ func (p Param) AsParams() []Param {
 	return []Param{p}
 }
 
+// P is a shortcut to create a single dynago Param.
+// This is mainly for brevity especially with cross-package imports.
+func P(key string, value interface{}) Params {
+	return Param{key, value}
+}
+
 /*
 Anything which implements Params can be used as expression parameters for
 dynamodb expressions.
@@ -243,7 +249,7 @@ DynamoDB item queries using expressions can be provided parameters in a number
 of handy ways:
 	.Param(":k1", v1).Param(":k2", v2)
 	-or-
-	.Params(Param{":k1", v1}, Param{":k2", v2})
+	.Params(P(":k1", v1), P(":k2", v2))
 	-or-
 	.FilterExpression("...", Param{":k1", v1}, Param{":k2", v2})
 	-or-
