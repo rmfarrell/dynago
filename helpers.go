@@ -78,7 +78,7 @@ effect.
 */
 var Debug DebugFlags
 
-// Set the target of debug. Must be set for debug to be used.
+// DebugFunc is set to control the target of debug output.
 var DebugFunc func(format string, v ...interface{}) = func(format string, v ...interface{}) {
 	log.Printf("Dynago DEBUG: "+format, v...)
 }

@@ -5,12 +5,14 @@ import (
 	"gopkg.in/underarmour/dynago.v1/schema"
 )
 
+// Stream is the compact representation of a stream.
 type Stream struct {
 	StreamArn   string
 	StreamLabel string
 	TableName   string
 }
 
+// StreamDescription is the main response value from DescribeStream
 type StreamDescription struct {
 	Stream
 	KeySchema      []schema.KeySchema
@@ -22,17 +24,20 @@ type StreamDescription struct {
 	LastEvaluatedShardId    string
 }
 
+// Shard describes one of the shards of a stream
 type Shard struct {
 	ParentShardId       string
 	SequenceNumberRange SequenceNumberRange
 	ShardId             string
 }
 
+// SequenceNumberRange is information about sequence numbers in a stream
 type SequenceNumberRange struct {
 	EndingSequenceNumber   string
 	StartingSequenceNumber string
 }
 
+// StreamRecord  is a description of a single data modification that was performed on an item in a DynamoDB table.
 type StreamRecord struct {
 	Keys           dynago.Document
 	OldImage       dynago.Document
@@ -42,6 +47,7 @@ type StreamRecord struct {
 	StreamViewType string
 }
 
+// Record is a description of a unique event within a stream.
 type Record struct {
 	StreamRecord `json:"dynamodb"`
 	AwsRegion    string

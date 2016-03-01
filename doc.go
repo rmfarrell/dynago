@@ -45,7 +45,7 @@ do things like query filtering, attribute projection, and so on. In order to pro
 literal values,  queries are parametric, just like many SQL engines:
 
 	SET Foo = Foo + :incr
-	DELETE Person.#n
+	REMOVE Person.#n
 
 DynamoDB has two fields it uses for parameters: ExpressionAttributeNames for name
 aliases, and ExpressionAttributeValues for parametric values.  For simplicity, in the

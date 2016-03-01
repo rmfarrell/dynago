@@ -23,16 +23,19 @@ func (e awsSchemaExecutor) DescribeTable(req *schema.DescribeRequest) (resp *sch
 	return
 }
 
+// ListTables lists tables in your account.
 type ListTables struct {
 	client *Client
 	req    schema.ListRequest
 }
 
+// Limit the number of results returned.
 func (l ListTables) Limit(limit uint) *ListTables {
 	l.req.Limit = limit
 	return &l
 }
 
+// Execute this ListTables request
 func (l *ListTables) Execute() (result *ListTablesResult, err error) {
 	resp, err := l.client.schemaExecutor.ListTables(l)
 	if err == nil {
@@ -46,14 +49,15 @@ func (e awsSchemaExecutor) ListTables(list *ListTables) (resp *schema.ListRespon
 	return resp, err
 }
 
+// ListTablesResult is a helper for paginating.
 type ListTablesResult struct {
 	TableNames []string
 	cursor     *string
 	req        *ListTables
 }
 
-// Helper to get the ListTables for the next page of listings.
-// If there is not a next page, returns nil
+// Next will get the ListTables for the next page of listings.
+// If there is not a next page, returns nil.
 func (r ListTablesResult) Next() *ListTables {
 	if r.cursor == nil {
 		return nil

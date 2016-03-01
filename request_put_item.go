@@ -28,7 +28,7 @@ type PutItem struct {
 	req    putItemRequest
 }
 
-// Set a ConditionExpression to do a conditional PutItem.
+// ConditionExpression sets a condition which if not satisfied, the PutItem is not performed.
 func (p PutItem) ConditionExpression(expression string, params ...Params) *PutItem {
 	p.req.ConditionExpression = expression
 	p.req.paramsHelper(params)
@@ -53,14 +53,14 @@ func (p PutItem) ReturnConsumedCapacity(consumedCapacity CapacityDetail) *PutIte
 	return &p
 }
 
-// Set ReturnValues.
+// ReturnValues can allow you to ask for either previous or new values on an update
 func (p PutItem) ReturnValues(returnValues ReturnValues) *PutItem {
 	p.req.ReturnValues = returnValues
 	return &p
 }
 
 /*
-Actually Execute this putitem.
+Execute this PutItem.
 
 PutItemResult will be nil unless ReturnValues or ReturnConsumedCapacity is set.
 */
@@ -68,6 +68,7 @@ func (p *PutItem) Execute() (res *PutItemResult, err error) {
 	return p.client.executor.PutItem(p)
 }
 
+// PutItem on this executor.
 func (e *AwsExecutor) PutItem(p *PutItem) (res *PutItemResult, err error) {
 	if (p.req.ReturnValues != ReturnNone && p.req.ReturnValues != "") || p.req.ReturnConsumedCapacity != "" {
 		err = e.MakeRequestUnmarshal("PutItem", &p.req, &res)
@@ -77,6 +78,7 @@ func (e *AwsExecutor) PutItem(p *PutItem) (res *PutItemResult, err error) {
 	return
 }
 
+// PutItemResult is returned when a PutItem is executed.
 type PutItemResult struct {
 	Attributes       Document
 	ConsumedCapacity *ConsumedCapacity

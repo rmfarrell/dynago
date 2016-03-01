@@ -5,13 +5,11 @@ Dynago
 
 Dynago is a DynamoDB client API for Go.
 
-This attempts to be a really simple, principle of least-surprise client for the DynamoDB API.
-
 Key design tenets of Dynago:
 
  * Most actions are done via chaining to build filters and conditions
  * objects are completely safe for passing between goroutines (even queries and the like)
- * To make understanding easier via docs, we use amazon's naming wherever possible.
+ * To make understanding easier via docs, we use Amazon's naming wherever possible.
 
 Installation
 ------------
@@ -30,7 +28,7 @@ Run a query:
 client := dynago.NewAwsClient(region, accessKey, secretKey)
 
 query := client.Query(table).
-	KeyConditionExpression("UserId = :uid", dynago.Param{":uid", 42}).
+	KeyConditionExpression("UserId = :uid", dynago.P(":uid", 42)).
 	FilterExpression("NumViews > :views").
 	Param(":views", 50).
 	Desc()
@@ -80,7 +78,7 @@ client.PutItem("person", doc).Execute()
 Debugging
 ---------
 
-Dynago can dump request or response information for you for use in debugging.
+Dynago can dump request or response information for you to use in debugging.
 Simply set [`dynago.Debug`][dynagoDebug] with the necessary flags:
 
 ```go
@@ -100,7 +98,7 @@ Dynago follows [Semantic Versioning](http://semver.org/) via the gopkg.in interf
 Additional resources
 --------------------
  * [DynamoDB's own API reference][apireference] explains the operations that DynamoDB supports, and as such will provide more information on how specific parameters and values within dynago actually work.
- * http://godoc.org/github.com/crast/dynatools is a collection of packages with "edge" functionality for Dynago, which includes additional libraries to add on, and some functionality fixes which may be considered for merging into dynago core in the future. It includes bits such as pluggable authentication, [support for DynamoDB streams](http://godoc.org/github.com/crast/dynatools/streamer#Streamer), [safe update expressions](http://godoc.org/github.com/crast/dynatools/safeupdate) and more.
+ * http://godoc.org/github.com/crast/dynatools is a collection of packages with "edge" functionality for Dynago, which includes additional libraries to add on, and some functionality which may be considered for merging into dynago core in the future. It includes bits such as pluggable authentication, [support for DynamoDB streams](http://godoc.org/github.com/crast/dynatools/streamer#Streamer), [safe update expressions](http://godoc.org/github.com/crast/dynatools/safeupdate) and more.
 
 [apireference]: http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/Welcome.html
 
@@ -109,4 +107,4 @@ The past, and the future
 
 Dynago currently implements all of its support for the underlying DynamoDB API encoding, AWS signing/authentication, etc. This happened in part because the existing libraries out there at the time of writing used deprecated API's and complicated methods, and it was actually cleaner at the time to support the API by fresh implementation.
 
-[AWS-SDK-Go](https://github.com/aws/aws-sdk-go) exists as of June 2015 and has a very up to date API, but it also comes with the pain of using bare structs which minimally wrap protocol-level details of DynamoDB, which makes it a pain to use for writing applications (dealing with DynamoDB's internal type system is boilerplatey). Once Amazon has brought it out of developer preview, the plan is to have Dynago use it as the underlying protocol and signature implementation, but keep providing Dynago's clean and simple API for building queries and marshaling datatypes in DynamoDB.
+[AWS-SDK-Go](https://github.com/aws/aws-sdk-go) exists as of June 2015 and has a very up to date API, but the API is via bare structs which minimally wrap protocol-level details of DynamoDB, resulting in it being very verbose for writing applications (dealing with DynamoDB's internal type system is boilerplatey). Once Amazon has brought it out of developer preview, the plan is to have Dynago use it as the underlying protocol and signature implementation, but keep providing Dynago's clean and simple API for building queries and marshaling datatypes in DynamoDB.
