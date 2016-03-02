@@ -9,14 +9,16 @@ import (
 )
 
 /*
-A set of binary blobs.
+BinarySet stores a set of binary blobs in dynamo.
 
-Note that BinarySet doesn't guarantee ordering on retrieval.
+While implemented as a list in Go, DynamoDB does not preserve ordering on set
+types and so may come back in a different order on retrieval. Use dynago.List
+if ordering is important.
 */
 type BinarySet [][]byte
 
 /*
-Lists represent DynamoDB lists, which are functionally very similar to JSON
+List represents DynamoDB lists, which are functionally very similar to JSON
 lists.  Like JSON lists, these lists are heterogeneous, which means that the
 elements of the list can be any valid value type, which includes other lists,
 documents, numbers, strings, etc.
@@ -47,41 +49,59 @@ func (l List) AsDocumentList() ([]Document, error) {
 }
 
 /*
-Represents a number.
+A Number.
 
 DynamoDB returns numbers as a string representation because they have a single
 high-precision number type that can take the place of integers, floats, and
 decimals for the majority of types.
 
 This method has helpers to get the value of this number as one of various
-Golang numeric type.
+Golang numeric types.
 */
 type Number string
 
+// IntVal interprets this number as an integer in base-10.
+// error is returned if this is not a valid number or is too large.
 func (n Number) IntVal() (int, error) {
 	return strconv.Atoi(string(n))
 }
 
+// Int64Val interprets this number as an integer in base-10.
+// error is returned if this string cannot be parsed as base 10 or is too large.
 func (n Number) Int64Val() (int64, error) {
 	return strconv.ParseInt(string(n), 10, 64)
 }
 
+// Uint64Val interprets this number as an unsigned integer.
+// error is returned if this is not a valid positive integer or cannot fit.
 func (n Number) Uint64Val() (uint64, error) {
 	return strconv.ParseUint(string(n), 10, 64)
 }
 
+// FloatVal interprets this number as a floating point.
+// error is returned if this number is not well-formed.
 func (n Number) FloatVal() (float64, error) {
 	return strconv.ParseFloat(string(n), 64)
 }
 
 /*
-A set of numbers.
+NumberSet is an un-ordered set of numbers.
+
+Sets in DynamoDB do not guarantee any ordering, so storing and retrieving a
+NumberSet may not give you back the same order you put it in. The main
+advantage of using sets in DynamoDB is using atomic updates with ADD and DELETE
+in your UpdateExpression.
 */
 type NumberSet []string
 
-// Represents an entire document structure composed of keys and dynamo value
+/*
+Document is the core type for many dynamo operations on documents.
+It is used to represent the root-level document, maps values, and
+can also be used to supply expression parameters to queries.
+*/
 type Document map[string]interface{}
 
+// MarshalJSON is used for encoding Document into wire representation.
 func (d Document) MarshalJSON() ([]byte, error) {
 	output := make(map[string]interface{}, len(d))
 	for key, val := range d {
@@ -92,6 +112,7 @@ func (d Document) MarshalJSON() ([]byte, error) {
 	return json.Marshal(output)
 }
 
+// UnmarshalJSON is used for unmarshaling Document from the wire representation.
 func (d *Document) UnmarshalJSON(buf []byte) error {
 	raw := make(map[string]interface{})
 	err := json.Unmarshal(buf, &raw)
@@ -110,7 +131,7 @@ func (d *Document) UnmarshalJSON(buf []byte) error {
 }
 
 /*
-Helper to get a key from document as a List.
+GetList gets the value at key as a List.
 
 If value at key is nil, returns a nil list.
 If value at key is not a List, will panic.
@@ -123,7 +144,12 @@ func (d Document) GetList(key string) List {
 	}
 }
 
-// Helper to get a string from a document.
+/*
+GetString gets the value at key as a String.
+
+If the value at key is nil, returns an empty string.
+If the value at key is not nil or a string, will panic.
+*/
 func (d Document) GetString(key string) string {
 	if d[key] != nil {
 		return d[key].(string)
@@ -132,7 +158,12 @@ func (d Document) GetString(key string) string {
 	}
 }
 
-// Helper to get a Number from a document.
+/*
+GetNumber gets the value at key as a Number.
+
+If the value at key is nil, returns a number containing the empty string.
+If the value is not a Number or nil, will panic.
+*/
 func (d Document) GetNumber(key string) Number {
 	if d[key] != nil {
 		return d[key].(Number)
@@ -142,9 +173,9 @@ func (d Document) GetNumber(key string) Number {
 }
 
 /*
-Helper to get a key from a document as a StringSet.
+GetStringSet gets the value specified by key a StringSet.
 
-If value at key does not exist; returns an empty StringSet.
+If value at key is nil; returns an empty StringSet.
 If it exists but is not a StringSet, panics.
 */
 func (d Document) GetStringSet(key string) StringSet {
@@ -174,7 +205,7 @@ func (d Document) GetTime(key string) (t *time.Time) {
 	return t
 }
 
-// Allow a document to be used to specify params
+// AsParams makes Document satisfy the Params interface.
 func (d Document) AsParams() (params []Param) {
 	for key, val := range d {
 		params = append(params, Param{key, val})
@@ -183,7 +214,7 @@ func (d Document) AsParams() (params []Param) {
 }
 
 /*
-Gets the value at the key as a boolean.
+GetBool gets the value specified by key as a boolean.
 
 If the value does not exist in this Document, returns false.
 If the value is the nil interface, also returns false.
@@ -212,12 +243,12 @@ func (d Document) GetBool(key string) bool {
 	}
 }
 
-// Helper to build a hash key.
+// HashKey is a shortcut to building keys used for various item operations.
 func HashKey(name string, value interface{}) Document {
 	return Document{name: value}
 }
 
-// Helper to build a hash-range key.
+// HashRangeKey is a shortcut for building keys used for various item operations.
 func HashRangeKey(hashName string, hashVal interface{}, rangeName string, rangeVal interface{}) Document {
 	return Document{
 		hashName:  hashVal,
@@ -225,12 +256,13 @@ func HashRangeKey(hashName string, hashVal interface{}, rangeName string, rangeV
 	}
 }
 
+// Param can be used as a single parameter.
 type Param struct {
 	Key   string
 	Value interface{}
 }
 
-// Allows a solo Param to also satisfy the Params interface
+// AsParsms allows a solo Param to also satisfy the Params interface
 func (p Param) AsParams() []Param {
 	return []Param{p}
 }
@@ -242,7 +274,7 @@ func P(key string, value interface{}) Params {
 }
 
 /*
-Anything which implements Params can be used as expression parameters for
+Params encapsulates anything which can be used as expression parameters for
 dynamodb expressions.
 
 DynamoDB item queries using expressions can be provided parameters in a number
@@ -251,7 +283,7 @@ of handy ways:
 	-or-
 	.Params(P(":k1", v1), P(":k2", v2))
 	-or-
-	.FilterExpression("...", Param{":k1", v1}, Param{":k2", v2})
+	.FilterExpression("...", P(":k1", v1), P(":k2", v2))
 	-or-
 	.FilterExpression("...", Document{":k1": v1, ":k2": v2})
 Or any combination of Param, Document, or potentially other custom types which
@@ -262,7 +294,7 @@ type Params interface {
 }
 
 /*
-Store a set of strings.
+StringSet is an un-ordered collection of distinct strings.
 
 Sets in DynamoDB do not guarantee any ordering, so storing and retrieving a
 StringSet may not give you back the same order you put it in. The main

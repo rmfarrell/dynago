@@ -1,5 +1,6 @@
 package streams
 
+// IteratorType controls where to start in a stream.
 type IteratorType string
 
 const (

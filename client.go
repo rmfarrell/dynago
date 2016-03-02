@@ -5,7 +5,7 @@ import (
 )
 
 /*
-Create a new dynamo client set up for AWS executor.
+NewAwsClient is a shortcut to create a new dynamo client set up for AWS executor.
 
 region is the AWS region, e.g. us-east-1.
 accessKey is your amazon access key ID.
@@ -17,7 +17,7 @@ func NewAwsClient(region string, accessKey string, secretKey string) *Client {
 }
 
 /*
-Create a new client.
+NewClient creates a new client from an executor.
 
 For most use cases other than testing and mocking, you should be able to use
 NewAwsClient which is a shortcut for this
@@ -38,32 +38,30 @@ type Client struct {
 }
 
 /*
-Compose a batch get operation.
-
-Batch gets allow you to get up to 100 keys, in parallel, even across multiple tables, in a single operation.
+A BatchGet allows you to get up to 100 keys, in parallel, even across multiple
+tables, in a single operation.
 */
 func (c *Client) BatchGet() *BatchGet {
 	return &BatchGet{client: c}
 }
 
 /*
-Compose a batch write.
-
-Batch writes can compose a number of put or delete, even across multiple tables, in a single operation.
+A BatchWrite can compose a number of put or delete, even across multiple tables,
+in a single operation.
 */
 func (c *Client) BatchWrite() *BatchWrite {
 	return newBatchWrite(c)
 }
 
 /*
-Compose a DeleteItem on a dynamo key
+DeleteItem lets you delete a single item in a table, optionally with conditions.
 */
 func (c *Client) DeleteItem(table string, key Document) *DeleteItem {
 	return newDeleteItem(c, table, key)
 }
 
 /*
-Compose a GetItem on a dynamo table.
+GetItem gets a single document from a dynamo table.
 
 key should be a Document containing enough attributes to describe the primary key.
 
@@ -78,7 +76,7 @@ func (c *Client) GetItem(table string, key Document) *GetItem {
 }
 
 /*
-Compose a Query on a dynamo table.
+Query returns one or more items with range keys inside a single hash key.
 
 This returns a new Query struct which you can compose via chaining to build the query you want.
 Then finish the chain by calling Execute() to run the query.
@@ -88,7 +86,7 @@ func (c *Client) Query(table string) *Query {
 }
 
 /*
-Compose a PutItem on a dynamo table.
+PutItem creates or replaces a single document, optionally with conditions.
 
 item should be a document representing the record and containing the attributes for the primary key.
 
@@ -99,35 +97,46 @@ func (c *Client) PutItem(table string, item Document) *PutItem {
 }
 
 /*
-Compose a Scan on a dynamo table.
+Scan can be used to enumerate an entire table or index.
 */
 func (c *Client) Scan(table string) *Scan {
 	return newScan(c, table)
 }
 
 /*
-Compose an UpdateItem on a dynamo table.
+UpdateItem creates or modifies a single document.
+
+UpdateItem will perform its updates even if the document at that key doesn't
+exist; use a condition if you only want to update existing. documents.
+
+The primary difference between PutItem and UpdateItem is the ability for
+UpdateItem to use expressions for partial updates of a value.
 */
 func (c *Client) UpdateItem(table string, key Document) *UpdateItem {
 	return newUpdateItem(c, table, key)
 }
 
 /*
-Create a table.
+CreateTable makes a new table in your account.
+
+This is not a synchronous operation; the table may take some time before
+it is actually usable.
 */
 func (c *Client) CreateTable(req *schema.CreateRequest) (*schema.CreateResult, error) {
 	return c.schemaExecutor.CreateTable(req)
 }
 
-// Delete a table.
+// DeleteTable deletes an existing table.
 func (c *Client) DeleteTable(table string) (*schema.DeleteResult, error) {
 	return c.schemaExecutor.DeleteTable(&schema.DeleteRequest{TableName: table})
 }
 
+// DescribeTable is used to get various attributes about the table.
 func (c *Client) DescribeTable(table string) (*schema.DescribeResponse, error) {
 	return c.schemaExecutor.DescribeTable(&schema.DescribeRequest{TableName: table})
 }
 
+// ListTables paginates through all the tables in an account.
 func (c *Client) ListTables() *ListTables {
 	return &ListTables{client: c}
 }

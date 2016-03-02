@@ -1,7 +1,7 @@
 package dynago
 
 /*
-A Mock executor for purpose of testing.
+MockExecutor is a fake executor to help with building tests.
 
 This Executor doesn't actually run any network requests, so it can be used in
 unit testing for your own application which uses Dynago.  It can be asserted
@@ -74,7 +74,13 @@ type MockExecutor struct {
 	UpdateItemError  error
 }
 
-// Mock executor calls
+/*
+MockExecutorCall is created for all calls into this executor.
+
+This allows for inspecting in a safe manner the attributes which would have
+been sent to DynamoDB. Only attributes relevant to the call in question are
+set.
+*/
 type MockExecutorCall struct {
 	// used for all calls
 	Method string
@@ -260,7 +266,7 @@ func (e *MockExecutor) addCall(target **MockExecutorCall, call MockExecutorCall)
 	}
 }
 
-// Convenience method to get delete keys in this batch write map for a specific table
+// GetDeleteKeys is a convenience method to get delete keys in this batch write map for a specific table
 func (m BatchWriteTableMap) GetDeleteKeys(table string) (deletes []Document) {
 	for _, entry := range m[table] {
 		if entry.DeleteRequest != nil {
@@ -270,7 +276,7 @@ func (m BatchWriteTableMap) GetDeleteKeys(table string) (deletes []Document) {
 	return
 }
 
-// Convenience method to get all put documents in this batch write map for a specific table
+// GetPuts is a convenience method to get all put documents in this batch write map for a specific table
 func (m BatchWriteTableMap) GetPuts(table string) (puts []Document) {
 	for _, entry := range m[table] {
 		if entry.PutRequest != nil {

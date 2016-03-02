@@ -10,7 +10,8 @@ import (
 	"gopkg.in/underarmour/dynago.v1/internal/dynamodb"
 )
 
-// Encapsulates errors coming from amazon/dynamodb
+// Error encapsulates errors coming from amazon/dynamodb.
+// It is returned whenever we get a non-2xx result from dynamodb.
 type Error struct {
 	Type          codes.ErrorCode // Parsed and mapped down type
 	AmazonRawType string          // Raw error type from amazon
@@ -22,6 +23,7 @@ type Error struct {
 	ResponseBody  []byte          // If available, raw response body bytes
 }
 
+// Error formats this error as a string.
 func (e *Error) Error() string {
 	exception := e.Exception
 	if exception == "" {

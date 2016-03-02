@@ -23,38 +23,49 @@ func newUpdateItem(client *Client, table string, key Document) *UpdateItem {
 	}
 }
 
+// UpdateItem is used to modify a single item in a table.
 type UpdateItem struct {
 	client *Client
 	req    updateItemRequest
 }
 
-// Set a condition expression for conditional update.
+// ConditionExpression sets a condition which if not satisfied, the PutItem is not performed.
 func (u UpdateItem) ConditionExpression(expression string, params ...Params) *UpdateItem {
 	u.req.paramsHelper(params)
 	u.req.ConditionExpression = expression
 	return &u
 }
 
-// Set an update expression to update specific fields and values.
+/*
+UpdateExpression defines the operations which will be performed by this update.
+
+	UpdateExpression("SET Field1=:val1, Field2=:val2 DELETE Field3")
+
+Expression values cannot be provided inside the expression strings, they must
+be referenced by the :param values.
+
+See http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.Modifying.html
+for more information on how to use update expression strings
+*/
 func (u UpdateItem) UpdateExpression(expression string, params ...Params) *UpdateItem {
 	u.req.paramsHelper(params)
 	u.req.UpdateExpression = expression
 	return &u
 }
 
-// Quick-set a single parameter
+// Param is a shortcut to set a single bound parameter.
 func (u UpdateItem) Param(key string, value interface{}) *UpdateItem {
 	u.req.paramHelper(key, value)
 	return &u
 }
 
-// Set multiple parameters at once.
+// Params sets multiple bound parameters on this query.
 func (u UpdateItem) Params(params ...Params) *UpdateItem {
 	u.req.paramsHelper(params)
 	return &u
 }
 
-// If set, then we will get return values of either updated or old fields (see ReturnValues const)
+// ReturnValues allows you to get return values of either updated or old fields (see ReturnValues const)
 func (u UpdateItem) ReturnValues(returnValues ReturnValues) *UpdateItem {
 	u.req.ReturnValues = returnValues
 	return &u
@@ -65,6 +76,7 @@ func (u *UpdateItem) Execute() (res *UpdateItemResult, err error) {
 	return u.client.executor.UpdateItem(u)
 }
 
+// UpdateItem on this executor.
 func (e *AwsExecutor) UpdateItem(u *UpdateItem) (result *UpdateItemResult, err error) {
 	if u.req.ReturnValues != ReturnNone && u.req.ReturnValues != "" {
 		err = e.MakeRequestUnmarshal("UpdateItem", &u.req, &result)
@@ -74,6 +86,7 @@ func (e *AwsExecutor) UpdateItem(u *UpdateItem) (result *UpdateItemResult, err e
 	return
 }
 
+// UpdateItemResult is returned when ReturnValues is set on the UpdateItem.
 type UpdateItemResult struct {
 	Attributes Document
 }

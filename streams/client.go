@@ -9,6 +9,7 @@ type Config struct {
 	Requester MakeRequester
 }
 
+// NewClient returns a new streams low-level client from config.
 func NewClient(config *Config) *Client {
 	return &Client{config.Requester}
 }
