@@ -38,7 +38,7 @@ type Client struct {
 }
 
 /*
-A BatchGet allows you to get up to 100 keys, in parallel, even across multiple
+BatchGet allows you to get up to 100 keys, in parallel, even across multiple
 tables, in a single operation.
 */
 func (c *Client) BatchGet() *BatchGet {
@@ -46,7 +46,7 @@ func (c *Client) BatchGet() *BatchGet {
 }
 
 /*
-A BatchWrite can compose a number of put or delete, even across multiple tables,
+BatchWrite can compose a number of puts or deletes, even across multiple tables,
 in a single operation.
 */
 func (c *Client) BatchWrite() *BatchWrite {

@@ -66,6 +66,7 @@ type inputError struct {
 	Message       string `json:"message"`
 }
 
+// All the mapped error codes
 const (
 	ErrorUnknown codes.ErrorCode = iota
 
@@ -81,6 +82,7 @@ const (
 	ErrorResourceInUse          // Tried to create existing table, delete a table in CREATING state, etc.
 
 	// DynamoDB Streams-specific errors
+
 	ErrorExpiredIterator // Iterator is no longer valid
 	ErrorTrimmedData     // Attempted to access data older than 24h
 )

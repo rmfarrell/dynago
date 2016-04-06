@@ -83,8 +83,8 @@ var DebugFunc func(format string, v ...interface{}) = func(format string, v ...i
 	log.Printf("Dynago DEBUG: "+format, v...)
 }
 
-// DebugFlags is a convenience method to check if a value has a flag:
-//    Debug.HasFlags(DebugRequests)
+// HasFlag is a convenience method to check if a value has a flag:
+//    Debug.HasFlag(DebugRequests)
 func (v DebugFlags) HasFlag(flag DebugFlags) bool {
 	return (v & flag) != 0
 }

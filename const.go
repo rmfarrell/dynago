@@ -13,6 +13,7 @@ const (
 // Select describes which attributes to return in Scan and Query operations.
 type Select string
 
+// Define all the ways you can ask for attributes
 const (
 	SelectAllAttributes      Select = "ALL_ATTRIBUTES"
 	SelectAllProjected       Select = "ALL_PROJECTED_ATTRIBUTES"
@@ -23,6 +24,8 @@ const (
 // ReturnValues enable returning some or all changed data from put operations.
 type ReturnValues string
 
+// Define all the ways you can ask for return values.
+// Note not all values are valid in all contexts.
 const (
 	ReturnNone       ReturnValues = "NONE"
 	ReturnAllOld     ReturnValues = "ALL_OLD"
@@ -34,6 +37,7 @@ const (
 // DebugFlags controls Dynago debugging
 type DebugFlags uint
 
+// All the available debug bit-flags.
 const (
 	DebugRequests DebugFlags = 1 << iota
 	DebugResponses

@@ -24,15 +24,16 @@ type ConsumedCapacity struct {
 	Table     *Capacity
 }
 
+// Capacity descriptor for indexes and tables.
 type Capacity struct {
 	CapacityUnits float64
 }
 
-// Represents multiple consumed capacity responses.
+// BatchConsumedCapacity describes ConsumedCapacity for multiple tables in batch requests.
 type BatchConsumedCapacity []ConsumedCapacity
 
 /*
-Get the batch consumed capacity for this table.
+GetTable returns the batch consumed capacity for the named table.
 */
 func (b BatchConsumedCapacity) GetTable(tableName string) *ConsumedCapacity {
 	for i := range b {

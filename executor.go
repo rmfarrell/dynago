@@ -27,7 +27,7 @@ type Executor interface {
 	SchemaExecutor() SchemaExecutor
 }
 
-// SchemaExecutors implement schema management commands.
+// SchemaExecutor implements schema management commands.
 type SchemaExecutor interface {
 	CreateTable(*schema.CreateRequest) (*schema.CreateResult, error)
 	DeleteTable(*schema.DeleteRequest) (*schema.DeleteResult, error)
@@ -35,6 +35,7 @@ type SchemaExecutor interface {
 	ListTables(*ListTables) (*schema.ListResponse, error)
 }
 
+// AwsRequester makes requests to dynamodb
 type AwsRequester interface {
 	MakeRequest(target string, body []byte) ([]byte, error)
 }

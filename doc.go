@@ -1,5 +1,5 @@
 /*
-Dynago is a DynamoDB client API for Go.
+Package dynago is a DynamoDB client API for Go.
 
 Dynago differs from other Dynamo clients for Go in that it tries to mirror
 DynamoDB's core API closely: Most methods, attributes, and names are made
