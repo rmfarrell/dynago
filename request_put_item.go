@@ -35,6 +35,16 @@ func (p PutItem) ConditionExpression(expression string, params ...Params) *PutIt
 	return &p
 }
 
+/*
+Item lets you change the item after construction.
+
+Note this replaces the whole item, it doesn't merge with the existing data.
+*/
+func (p PutItem) Item(item Document) *PutItem {
+	p.req.Item = item
+	return &p
+}
+
 // Param is a shortcut to set a single bound parameter.
 func (p PutItem) Param(key string, value interface{}) *PutItem {
 	p.req.paramHelper(key, value)

@@ -37,6 +37,17 @@ func (u UpdateItem) ConditionExpression(expression string, params ...Params) *Up
 }
 
 /*
+Key allows the key to be changed/set after the UpdateItem has been created.
+
+This allows a generic UpdateItem to be created with all the settings and
+expressions, and then re-used for multiple requests with different keys.
+*/
+func (u UpdateItem) Key(key Document) *UpdateItem {
+	u.req.Key = key
+	return &u
+}
+
+/*
 UpdateExpression defines the operations which will be performed by this update.
 
 	UpdateExpression("SET Field1=:val1, Field2=:val2 DELETE Field3")
