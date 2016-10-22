@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"gopkg.in/underarmour/dynago.v1"
+	"github.com/rmfarrell/dynago"
 )
 
 func mockSetup(t *testing.T) (*assert.Assertions, *dynago.Client, *dynago.MockExecutor) {

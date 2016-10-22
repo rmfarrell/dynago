@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
-	"gopkg.in/underarmour/dynago.v1"
+	"github.com/rmfarrell/dynago"
 )
 
 func ExampleList() {
@@ -146,7 +146,7 @@ func TestDocumentGetTimePanicsWhenFormatIsNotIso8601(t *testing.T) {
 }
 
 func TestDocumentMarshalJSONDoesNotIncludeEmptyValues(t *testing.T) {
-	doc := dynago.Document{"key1": "shows up", "key2": 9, "fields": dynago.StringSet([]string{"is", "present"}), "id": "", "name": nil, "tags": []string{}}
+	doc := dynago.Document{"key1": "shows up", "key2": 9, "fields": dynago.StringSet([]string{"is", "present"}), "id": "", "name": nil}
 	jsonDoc, _ := doc.MarshalJSON()
 
 	assert.Contains(t, string(jsonDoc), `"fields":{"SS":["is","present"]}`)

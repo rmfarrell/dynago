@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strings"
 
-	"gopkg.in/underarmour/dynago.v1/internal/codes"
-	"gopkg.in/underarmour/dynago.v1/internal/dynamodb"
+	"github.com/rmfarrell/dynago/internal/codes"
+	"github.com/rmfarrell/dynago/internal/dynamodb"
 )
 
 // Error encapsulates errors coming from amazon/dynamodb.

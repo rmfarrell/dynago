@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"gopkg.in/underarmour/dynago.v1"
+	"github.com/rmfarrell/dynago"
 )
 
 var consumedOk = 0
