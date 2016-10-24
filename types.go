@@ -187,6 +187,20 @@ func (d Document) GetStringSet(key string) StringSet {
 }
 
 /*
+GetNumberSet gets the value specified by key a NumberSet.
+
+If value at key is nil; returns an empty NumberSet.
+If it exists but is not a NumberSet, panics.
+*/
+func (d Document) GetNumberSet(key string) NumberSet {
+	if d[key] != nil {
+		return d[key].(NumberSet)
+	} else {
+		return NumberSet{}
+	}
+}
+
+/*
 Helper to get a Time from a document.
 
 If the value is omitted from the DB, or an empty string, then the return
